@@ -1,4 +1,0 @@
-sql.keyWord=and ,create ,', or ,--, like,drop , table , from , union , where ,delete ,update ,order , by ,grant ,group_concat(,wm_concat(,exec,execute,column_name,table_name, count(, chr(, mid(,truncate ,char,declare ,//
-sql.exceptWord=
-sql.urldecodeflag=1
-intercept.url=
