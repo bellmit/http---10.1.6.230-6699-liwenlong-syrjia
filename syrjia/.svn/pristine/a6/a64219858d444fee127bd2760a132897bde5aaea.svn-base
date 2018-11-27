@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta charset="UTF-8">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=no">
+</head>
+<body>
+	<div class="nav">
+		<div class="nav_logo"></div>
+		<div class="layer nav_layer">
+			<div class="nav_con">
+				<ul>
+					<li><a href="/HXTravelInterface/weixin/home/index.html"> <img src="../../img/nav_index.png">
+							<p>首页</p> </a>
+					</li>
+					<li><a href="/HXTravelInterface/weixin/goods/mall.html"> <img src="../../img/nav_mall.png">
+							<p>健康商城</p> </a>
+					</li>
+					<li><a href="/HXTravelInterface/weixin/medical/medical_service.html"> <img src="../../img/nav_serve.png">
+							<p>健康服务</p> </a>
+					</li>
+				</ul>
+				<ul>
+					<li><a href="/HXTravelInterface/weixin/goods/shoppingcartlist.html"> <img src="../../img/nav_cart.png">
+							<p>购物车</p> </a>
+					</li>
+					<li><a href="/HXTravelInterface/weixin/order/orderall.html"> <img src="../../img/nav_order.png">
+							<p>我的订单</p> </a>
+					</li>
+					<li><a href="/HXTravelInterface/weixin/goodsOrder/coupons_center.html"> <img src="../../img/nav_coupons.png">
+							<p>卡券中心</p> </a>
+					</li>
+				</ul>
+				<ul>
+					<li><a href="/HXTravelInterface/weixin/shippingaddress/select_address.html"> <img src="../../img/nav_address.png">
+							<p>地址管理</p> </a>
+					</li>
+					<li><a href="/HXTravelInterface/weixin/scoreGoods/integral_store.html"> <img src="../../img/nav_integral.png">
+							<p>我的积分</p> </a>
+					</li>
+					<li><a href="/HXTravelInterface/weixin/myself/myself_mine_index.html"> <img src="../../img/nav_center.png">
+							<p>个人中心</p> </a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

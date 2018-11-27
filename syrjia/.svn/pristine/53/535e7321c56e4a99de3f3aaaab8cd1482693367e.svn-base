@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="doctorEvaApp" ng-controller="doctorEvaCon"
+	ng-cloak>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=no">
+<link rel="stylesheet" type="text/css" href="../../css/mui.min.css">
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+<script src="../../js/mui.min.js"></script>
+<script type="text/javascript" src="../../js/jquery.min.js"></script>
+<script src="../../js/iscroll.js"></script>
+<script type="text/javascript" src="../../js/angular.min.js"></script>
+<script src="../../js/angular-sanitize.min.js"></script>
+<script src="../../js/ng-infinite-scroll.js"></script>
+<script src="../../js/util.js"></script>
+<title>评价({{totalEvaCnt}})</title>
+<style type="text/css">
+.scroll {
+	overflow: scroll;
+	-webkit-overflow-scrolling:touch;
+}
+</style>
+<script type="text/javascript">
+	var myscroll;
+</script>
+</head>
+<body style="overflow: hidden;">
+	<div class="evaluate_main "  ng-init="check=1">
+		<ul class="evaluate_title"  ng-cloak>
+			<li ng-click="check=1" ng-class="{1:'evaluate_checked'}[check]">全部{{totalEvaCnt}}</li>
+			<li ng-click="check=2" ng-class="{2:'evaluate_checked'}[check]">好评{{goodEvaCnt}}</li>
+			<li ng-click="check=3" ng-class="{3:'evaluate_checked'}[check]">中评{{middleEvaCnt}}</li>
+			<li ng-click="check=4" ng-class="{4:'evaluate_checked'}[check]">差评{{lowEvaCnt}}</li>
+			<p>好评率{{goodEvaRate}}</p>
+		</ul>
+		<div class="commodity_evaluate evaluate_commo">
+			<div class="scroll all" infinite-scroll-distance='0'
+				ng-class="{1:'',2:'ng-hide',3:'ng-hide',4:'ng-hide'}[check]"
+				ng-controller="evalAll" infinite-scroll='loadMore1("all")'
+				infinite-scroll-disabled='evalAllDis'
+				infinite-scroll-immediate-check=true>
+				<ul class="evaluate_cut">
+					<li ng-repeat="eva in docEvas">
+						<div class="commodity_evli">
+							<div class="commodity_evacon">
+								<img ng-src="{{''==eva.memberUrl?(eva.sex=='男'?'../../img/boy.png':'../../img/girl.png'):eva.memberUrl}}">
+								<div class="commodity_evaintro">
+									<h3>
+										{{eva.realname | realName}}
+										<p>{{eva.evaDate}}</p>
+									</h3>
+								</div>
+							</div>
+							<ul class="commodity_star">
+								<li></li>
+								<li ng-class="{1:'commodity_unchecked'}[eva.evaluateLevel]"></li>
+								<li
+									ng-class="{1:'commodity_unchecked',2:'commodity_unchecked'}[eva.evaluateLevel]"></li>
+								<li
+									ng-class="{1:'commodity_unchecked',2:'commodity_unchecked',3:'commodity_unchecked'}[eva.evaluateLevel]"></li>
+								<li
+									ng-class="{1:'commodity_unchecked',2:'commodity_unchecked',3:'commodity_unchecked',4:'commodity_unchecked'}[eva.evaluateLevel]"></li>
+							</ul>
+						</div>
+						<ul class="evalua_evaluate"
+							ng-if="eva.labelNames!=null&&eva.labelNames.length>0"
+							ng-bind="eva.labelNames | splitLables" compile-html>
+						</ul>
+					<p class="commodity_evmain" ng-bind="eva.evaluate_note"></p>
+					<div class="evaluate_img clinic_evaluate"
+						ng-if="eva.jqimgs!=null&&eva.jqimgs.length>0"
+						ng-bind="eva.jqimgs | splitEvaImgs" compile-html></div>
+					<!-- <p class="evaluate_classify"  style="margin-bottom:0;" ng-if="eva.diagonsticName!=null&&eva.diagonsticName!=''">症状：{{eva.diagonsticName}}</p> -->
+					<p class="evaluate_classify"  style="margin-bottom:0;">问诊日期：{{eva.wzDate}}</p>
+					<div class="evaluate_reply" ng-if="eva.replyState=1&&eva.explain!=null&&eva.explain!=''">
+						<p>
+							<span>医生的回复：</span>
+							<i ng-bind="eva.explain"></i>
+						</p>
+					</div>
+					</li>
+				</ul>
+			</div>
+			<div class="scroll hp" infinite-scroll-distance='0'
+				ng-class="{1:'ng-hide',2:'',3:'ng-hide',4:'ng-hide'}[check]"
+				ng-controller="hp" infinite-scroll='loadMore2("hp")'
+				infinite-scroll-disabled='evalHPDis'
+				infinite-scroll-immediate-check=true>
+				<ul class="evaluate_cut">
+					<li ng-repeat="eva in docEvas">
+						<div class="commodity_evli">
+							<div class="commodity_evacon">
+								<img ng-src="{{''==eva.memberUrl?(eva.sex=='男'?'../../img/boy.png':'../../img/girl.png'):eva.memberUrl}}">
+								<div class="commodity_evaintro">
+									<h3>
+										{{eva.realname}}
+										<p>{{eva.evaDate}}</p>
+									</h3>
+								</div>
+							</div>
+							<ul class="commodity_star">
+								<li></li>
+								<li ng-class="{1:'commodity_unchecked'}[eva.evaluateLevel]"></li>
+								<li
+									ng-class="{1:'commodity_unchecked',2:'commodity_unchecked'}[eva.evaluateLevel]"></li>
+								<li
+									ng-class="{1:'commodity_unchecked',2:'commodity_unchecked',3:'commodity_unchecked'}[eva.evaluateLevel]"></li>
+								<li
+									ng-class="{1:'commodity_unchecked',2:'commodity_unchecked',3:'commodity_unchecked',4:'commodity_unchecked'}[eva.evaluateLevel]"></li>
+							</ul>
+						</div>
+						<ul class="evalua_evaluate"
+							ng-if="eva.labelNames!=null&&eva.labelNames.length>0"
+							ng-bind="eva.labelNames | splitLables" compile-html>
+						</ul>
+						<p class="commodity_evmain" ng-bind="eva.evaluate_note"></p>
+						<div class="evaluate_img clinic_evaluate"
+							ng-if="eva.jqimgs!=null&&eva.jqimgs.length>0"
+							ng-bind="eva.jqimgs | splitEvaImgs" compile-html></div>
+						<!-- <p class="evaluate_classify"  style="margin-bottom:0;" ng-if="eva.diagonsticName!=null&&eva.diagonsticName!=''">症状：{{eva.diagonsticName}}</p> -->
+					<p class="evaluate_classify"  style="margin-bottom:0;">问诊日期：{{eva.wzDate}}</p>
+					<div class="evaluate_reply" ng-if="eva.replyState=1&&eva.explain!=null&&eva.explain!=''">
+						<p>
+							<span>医生的回复：</span>
+							<i ng-bind="eva.explain"></i>
+						</p>
+					</div>
+					</li>
+				</ul>
+			</div>
+			<div class="scroll zp" infinite-scroll-distance='0'
+				ng-class="{1:'ng-hide',2:'ng-hide',3:'',4:'ng-hide'}[check]"
+				ng-controller="zp" infinite-scroll='loadMore3("zp")'
+				infinite-scroll-disabled='evalZPDis'
+				infinite-scroll-immediate-check=true>
+				<ul class="evaluate_cut">
+					<li ng-repeat="eva in docEvas">
+						<div class="commodity_evli">
+							<div class="commodity_evacon">
+								<img ng-src="{{''==eva.memberUrl?(eva.sex=='男'?'../../img/boy.png':'../../img/girl.png'):eva.memberUrl}}">
+								<div class="commodity_evaintro">
+									<h3>
+										{{eva.realname}}
+										<p>{{eva.evaDate}}</p>
+									</h3>
+								</div>
+							</div>
+							<ul class="commodity_star">
+								<li></li>
+								<li ng-class="{1:'commodity_unchecked'}[eva.evaluateLevel]"></li>
+								<li
+									ng-class="{1:'commodity_unchecked',2:'commodity_unchecked'}[eva.evaluateLevel]"></li>
+								<li
+									ng-class="{1:'commodity_unchecked',2:'commodity_unchecked',3:'commodity_unchecked'}[eva.evaluateLevel]"></li>
+								<li
+									ng-class="{1:'commodity_unchecked',2:'commodity_unchecked',3:'commodity_unchecked',4:'commodity_unchecked'}[eva.evaluateLevel]"></li>
+							</ul>
+						</div>
+						<ul class="evalua_evaluate"
+							ng-if="eva.labelNames!=null&&eva.labelNames.length>0"
+							ng-bind="eva.labelNames | splitLables" compile-html>
+						</ul>
+						<p class="commodity_evmain" ng-bind="eva.evaluate_note"></p>
+						<div class="evaluate_img clinic_evaluate"
+							ng-if="eva.jqimgs!=null&&eva.jqimgs.length>0"
+							ng-bind="eva.jqimgs | splitEvaImgs" compile-html></div>
+						<!-- <p class="evaluate_classify"  style="margin-bottom:0;" ng-if="eva.diagonsticName!=null&&eva.diagonsticName!=''">症状：{{eva.diagonsticName}}</p> -->
+					<p class="evaluate_classify"  style="margin-bottom:0;">问诊日期：{{eva.wzDate}}</p>
+					<div class="evaluate_reply" ng-if="eva.replyState=1&&eva.explain!=null&&eva.explain!=''">
+						<p>
+							<span>医生的回复：</span>
+							<i ng-bind="eva.explain"></i>
+						</p>
+					</div>
+					</li>
+				</ul>
+			</div>
+			<div class="scroll cp" infinite-scroll-distance='0'
+				ng-class="{1:'ng-hide',2:'ng-hide',3:'ng-hide',4:''}[check]"
+				ng-controller="cp" infinite-scroll='loadMore4("cp")'
+				infinite-scroll-disabled='evalCPDis'
+				infinite-scroll-immediate-check=true>
+				<ul class="evaluate_cut">
+					<li ng-repeat="eva in docEvas">
+						<div class="commodity_evli">
+							<div class="commodity_evacon">
+								<img ng-src="{{''==eva.memberUrl?(eva.sex=='男'?'../../img/boy.png':'../../img/girl.png'):eva.memberUrl}}">
+								<div class="commodity_evaintro">
+									<h3>
+										{{eva.realname}}
+										<p>{{eva.evaDate}}</p>
+									</h3>
+								</div>
+							</div>
+							<ul class="commodity_star">
+								<li></li>
+								<li ng-class="{1:'commodity_unchecked'}[eva.evaluateLevel]"></li>
+								<li
+									ng-class="{1:'commodity_unchecked',2:'commodity_unchecked'}[eva.evaluateLevel]"></li>
+								<li
+									ng-class="{1:'commodity_unchecked',2:'commodity_unchecked',3:'commodity_unchecked'}[eva.evaluateLevel]"></li>
+								<li
+									ng-class="{1:'commodity_unchecked',2:'commodity_unchecked',3:'commodity_unchecked',4:'commodity_unchecked'}[eva.evaluateLevel]"></li>
+							</ul>
+						</div>
+						<ul class="evalua_evaluate"
+							ng-if="eva.labelNames!=null&&eva.labelNames.length>0"
+							ng-bind="eva.labelNames | splitLables" compile-html>
+						</ul>
+						<p class="commodity_evmain" ng-bind="eva.evaluate_note"></p>
+						<div class="evaluate_img clinic_evaluate"
+							ng-if="eva.jqimgs!=null&&eva.jqimgs.length>0"
+							ng-bind="eva.jqimgs | splitEvaImgs" compile-html></div>
+						<!-- <p class="evaluate_classify"  style="margin-bottom:0;" ng-if="eva.diagonsticName!=null&&eva.diagonsticName!=''">症状：{{eva.diagonsticName}}</p> -->
+					<p class="evaluate_classify"  style="margin-bottom:0;">问诊日期：{{eva.wzDate}}</p>
+					<div class="evaluate_reply" ng-if="eva.replyState=1&&eva.explain!=null&&eva.explain!=''">
+						<p>
+							<span>医生的回复：</span>
+							<i ng-bind="eva.explain"></i>
+						</p>
+					</div>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div class="layer_con" style="display: none;">
+			<div class="evaluate_look">
+				<span> <img src=""> </span>
+			</div>
+			<a ng-click="hideBigImg();"></a>
+		</div>
+		<script type="text/javascript"
+			src="../../js/hospital/clinic_evaluate.js"></script>
+		<script type="text/javascript" src="../../js/foot.js"></script>
+</body>
+</html>

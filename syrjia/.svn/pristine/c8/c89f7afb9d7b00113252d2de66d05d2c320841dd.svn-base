@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="goodsApp" ng-controller="goodsCon">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=no">
+<link rel="stylesheet" type="text/css" href="../../css/style.css?v=2">
+<link rel="stylesheet" type="text/css" href="../../css/mui.min.css">
+<link href="../../css/mui.picker.min.css" rel="stylesheet"type="text/css">
+<link rel="stylesheet" type="text/css" href="../../css/owl.carousel.css">
+<link rel="stylesheet" type="text/css" href="../../css/owl.theme.css">
+<link rel="stylesheet" href="../../css/ydui.css"/>
+<script type="text/javascript" src="../../js/jquery.min.js"></script>
+<script src="../../js/amazeui.min.js"></script>
+<script type="text/javascript"
+	src="http://api.map.baidu.com/api?v=2.0&ak=29BFG3sykPW7HPCKcFvjwyHa"></script>
+<script type="text/javascript" src="../../js/owl.carousel.js"></script>
+<script type="text/javascript" src="../../js/angular.min.js"></script>
+<script src="../../js/angular-cookies.min.js"></script>
+<script src="../../js/angular-sanitize.min.js"></script>
+<script src="../../js/util.js"></script>
+<script src="https://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
+<title ng-bind="Toptitle"></title>
+<style type="text/css">
+body {
+	background: #f6f5f3;
+}
+
+.owl-item a {
+	height: 16.58rem;
+	min-height: 16.58rem;
+}
+
+.owl-carousel .owl-item a img {
+	height: 16.58rem;
+}
+
+.owl-theme .owl-controls .owl-page.active span,.owl-theme .owl-controls.clickable .owl-page:hover span
+	{
+	background: #cc0422;
+}
+
+.owl-theme .owl-controls .owl-page span {
+	background: #fff;
+}
+
+.ng-cloak {
+	display: none;
+}
+
+@media ( min-width : 360px) {
+	.owl-item a {
+		height: 18.659rem;
+		min-height: 18.659rem;
+	}
+	.owl-carousel .owl-item a img {
+		height: 18.659rem;
+	}
+}
+
+@media ( min-width : 375px) {
+	.owl-item a {
+		height: 19.437rem;
+		min-height: 19.437rem;
+	}
+	.owl-carousel .owl-item a img {
+		height: 19.437rem;
+	}
+}
+
+@media ( min-width : 414px) {
+	.owl-item a {
+		height: 21.458rem;
+		min-height: 21.458rem;
+	}
+	.owl-carousel .owl-item a img {
+		height: 21.458rem;
+	}
+}
+.ccc{
+	background-color: #f3f3f3!important;
+}
+.dadada{
+	background-color: #f3f3f3!important;
+}
+</style>
+</head>
+<body ng-init="isShow=false">
+	<div class="commo_auto" ng-cloak ng-show="isShow">
+		<div class="commodity_title">
+			<a class="commodity_back" href="javascript:history.back(-1)"></a>
+			<nav class="commodity_btn" data-am-scrollspynav="{className: {active: 'commo_commo'},offsetTop:'45'}">
+					<a class="commo_commo" href="#body">宝贝</a>
+					<a href="#detail">详情</a>
+					<a href="#eval">评价</a>
+			</nav>
+		</div>
+		<div class="commodity_main" id="body">
+			<div class="index_banner goods_banner" id="roll_commoidy">
+				<div id="owl-carousel" class="owl-carousel">
+					<a class="item" render-finish  ng-repeat="x in urls" ng-cloak><img ng-src="{{x.img}}">
+					</a>
+				</div>
+			</div>
+			<div class="commodity_intro">
+				<p class="commodity_price">
+					<span ng-cloak>¥<span ng-bind="originalPrice"></span>
+					</span><i ng-if="activityPrice!=null" ng-cloak>¥{{activityPrice}}</i><a ng-repeat="activity in activitys" ng-bind="activity.label" ng-cloak></a>
+				</p>
+				<h3 ng-cloak>
+					<span ng-if="isProprietary==1">自营</span>{{name}}
+					 <a href="javascript:void(0)" class="commodity_share" onclick="share()"></a>
+				</h3>
+				<p class="commodity_abstract ellipsis" ng-bind="description"></p>
+
+				<!-- <p class="commodity_other">
+					<span>月销102笔<span class="commodity_sum">库存999</span></span>
+					<span>快递：￥15.00</span>
+				</p> -->
+			</div>
+			<div class="commodity_activity" ng-if="(null!=promises&&promises.length>0)||(null!=activitys&&activitys.length>0)">
+				<div class="commodity_actop" ng-if="null!=activitys&&activitys.length>0">
+					<span>促销活动：</span>
+					<p>
+						<span ng-repeat="activity in activitys" ng-cloak ng-bind="activity.name"></span>
+					</p>
+				</div>
+				<div class="commodity_remark" ng-if="null!=promises&&promises.length>0">
+					<span ng-repeat="promise in promises" ng-cloak ng-bind="promise.name"></span> 
+				</div>
+			</div>
+			<div class="commodity_spec" ng-click="checkspec()">
+				<h3>请选择规格</h3>
+				<span class="commo_specresult" ng-bind="check"></span>
+			</div>
+			<div class="commodity_delivery">
+				<div class="commodity_spec" id="showCityPicker3">
+					<h3>配送：</h3>
+					<span class="commodity_address" id="J_Address"><span>{{supplierCity}} 至 </span> <span style="text-overflow: ellipsis;overflow: hidden;white-space: nowrap;width: 60%">{{province}} {{city}} {{area}}</span>
+					</span>
+				</div>
+				<div class="commodity_freight">
+					运费：<span ng-bind="postage">0.00</span>
+				</div>
+			</div>
+			<div class="commodity_detail" id="detail" ng-bind-html="remark">
+			</div>
+			<div class="commodity_evaluate" id="eval">
+				<div class="commodity_evtop">
+					<span class="left_icon"></span>
+					<h3>评价</h3>
+					<p>
+						<span ng-bind="rate"></span>好评
+					</p>
+				</div>
+				<ul>
+					<li ng-repeat="eval in evals" ng-cloak>
+						<div class="commodity_evli">
+							<div class="commodity_evacon">
+								<img ng-src="{{eval.photo}}">
+								<div class="commodity_evaintro">
+									<h3 ng-cloak>
+										{{eval.realName | realName}}
+										<p ng-cloak>{{eval.time}}</p>
+									</h3>
+								</div>
+							</div>
+							<ul class="commodity_star" ng-cloak>
+								<li></li>
+								<li ng-class="{1:'commodity_unchecked'}[eval.evaluateLevel]"></li>
+								<li ng-class="{1:'commodity_unchecked',2:'commodity_unchecked'}[eval.evaluateLevel]"></li>
+								<li ng-class="{1:'commodity_unchecked',2:'commodity_unchecked',3:'commodity_unchecked'}[eval.evaluateLevel]"></li>
+								<li ng-class="{1:'commodity_unchecked',2:'commodity_unchecked',3:'commodity_unchecked',4:'commodity_unchecked'}[eval.evaluateLevel]"></li>
+							</ul>
+						</div>
+						<p class="commodity_evmain" ng-cloak>{{eval.evaluate_note}}</p>
+					</li>
+				</ul>
+				<div class="commodity_evmore" ng-if="null!=evals&&evals.length>0" ng-cloak>
+					<a ng-click="queryEvals()">查看更多评论</a>
+				</div>
+				<div class="article_none" ng-if="null==evals||evals.length==0" ng-cloak>
+					暂无评论
+				</div>
+			</div>
+		</div>
+		<div class="commodity_bot" ng-if="null!=stock&&stock>0" ng-cloak>
+			<div class="commodity_btnleft">
+				<a ng-click="toKF()"><img src="../../img/service.png">客服</a> <a ng-click="keep()"><img
+					ng-src="{{null!=keepId?'../../img/evalua_starchecked.png':'../../img/collect.png'}}" ng-cloak>{{null!=keepId?'已收藏':'收藏'}}</a>
+			</div>
+			<div class="commodity_btnext">
+				<a ng-click="checkspec()">加入购物车</a> <a ng-click="checkspec()">立即购买</a>
+			</div>
+		</div>
+
+		<!-- 缺货 -->
+		<div class="commodity_bot commo_stockout" ng-if="null==stock||stock<=0" ng-cloak>
+			<a ng-click="toCart()"><img src="../../img/car.png">购物车</a>
+			<div class="commo_stock">暂时缺货</div>
+		</div>
+		<!-- 缺货    end-->
+
+		<div id="commodity_checked" style="display: none;"
+			ng-click="checkmain()"></div>
+		<div class="checked_up commodity_checked" style="display: none;">
+			<div class="commo_checktop">
+				<div class="commo_sample">
+					<div class="commo_checkimg">
+						<span> <img ng-src="{{checkPicture}}"> </span>
+					</div>
+					<div class="commo_spec">
+						<p ng-cloak>已选：{{check}}</p>
+						<p ng-cloak>库存{{checkStock}}件</p>
+						<h3>
+							¥<span ng-cloak>{{checkPrice}}</span>
+						</h3>
+					</div>
+				</div>
+				<div class="commo_up">
+					<div class="commo_option" ng-repeat="specification in specifications" ng-cloak render-finish1>
+						<h3 ng-bind="specification.name">规格</h3>
+						<ul>
+							<li ng-repeat="v in specification.value" ng-click="checkSpec($event)" id="{{v.id}}">{{v.name}}</li>
+						</ul>
+					</div>
+					<div class="commo_num">
+						<h3>购买数量</h3>
+						<ul class="s_none" ng-init="checkNum=1">
+							<li class="fkleefl" ng-click="subtract()" ng-class={1:'dadada'}[checkNum]>-</li>
+							<li><input type="text" value="1" class="num" ng-model="checkNum"
+								readonly="readonly">
+							</li>
+							<li class="fkleefr" ng-click="add()">+</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="commodity_btnext commo_botbtn">
+				<a ng-click="addShopCart()">加入购物车</a> <a ng-click="pay()">立即购买</a>
+			</div>
+			<a class="commo_close" ng-click="checkmain()"></a>
+		</div>
+		<!-- 弹框 -->
+		<div class="commo_hint" style="display: none">
+			<img src="../../img/finish.png">
+			<p>地址切换成功</p>
+		</div>
+		<!-- 弹框    end-->
+		
+		 <div class="goods_join" style="display: none;">
+        <div class="join_con">
+          <img src="../../img/add_success.png">
+          <p>商品已成功添加到购物车</p>
+        </div>
+	    </div>
+	
+	    <div class="collect_success" style="display: none;">
+	        <div class="join_con">
+	          <img src="../../img/collect_success.png">
+	          <p>添加收藏成功!</p>
+	        </div>
+	    </div>
+	    <div class="collect_cancel" style="display: none;">
+	        <div class="join_con">
+	          <img src="../../img/collect_cancel.png">
+	          <p>取消收藏成功!</p>
+	        </div>
+	    </div>
+		</div>
+	<script type="text/javascript" src="../../js/goods/commodity_details.js"></script>
+	<script type="text/javascript" src="../../js/ydui.js"></script>
+	<script type="text/javascript" src="../../js/foot.js?v=6"></script>
+</body>
+</html>

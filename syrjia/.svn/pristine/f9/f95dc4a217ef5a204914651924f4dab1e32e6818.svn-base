@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="addressApp" ng-controller="addressCon">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=no">
+<link rel="stylesheet" type="text/css" href="../../css/mui.min.css">
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+<link rel="stylesheet" href="../../css/ydui.css"/>
+<script src="../../js/mui.min.js"></script>
+<script type="text/javascript" src="../../js/jquery.min.js"></script>
+<script type="text/javascript" src="../../js/angular.min.js"></script>
+<script src="../../js/angular-sanitize.min.js"></script>
+<script src="../../js/util.js"></script>
+<title>收货地址</title>
+<style type="text/css">
+.mui-scroll-wrapper,.scroller{
+	position: absolute;
+	width: 100%;
+}
+.shippingaddress-content{
+	margin-bottom:30px;
+}
+.mui-content{
+	background-color: #fff;
+}
+.mui-scroll-wrapper, .scroller{
+	height: 100%;
+}
+</style>
+</head>
+<body>
+	<div class="mui-content mui-scroll-wrapper">
+		<div class="scroller">
+			<ul class="manage_con" style="overflow: scroll;">
+				<li>
+					<h3>收货人姓名</h3> <input type="text" placeholder="请填写收货人姓名" maxlength="25"
+					ng-model="consignee">
+				</li>
+				<li>
+					<h3>手机号</h3> <input type="tel" placeholder="请填写手机号" maxlength="11"
+					ng-model="phone">
+				</li>
+				<li class="manage_address">
+					<h3>所在地</h3> <input type="text" class="cell-input" readonly="readonly"
+					id="J_Address" placeholder="请选择所在地">
+				</li>
+				<li class="manage_addressdetail">
+					<!-- <h3>详细地址</h3>  --><input type="text" placeholder="请填写详细地址" maxlength="50"
+					ng-model="detailedAddress">
+				</li>
+			</ul>
+			<div class="evalua_finish manage_finish">
+				<button ng-click="save()">完成</button>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript"
+		src="../../js/shippingaddress/manage_address.js"></script>
+	<script type="text/javascript" src="../../js/foot.js"></script>
+	<script type="text/javascript" src="../../js/ydui.js"></script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="indexApp" ng-controller="indexCon">
+<head>
+	<meta charset="UTF-8">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=no">
+<link rel="stylesheet" type="text/css" href="../../css/mui.min.css">
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+<link rel="stylesheet" href="../../css/address.css"/>
+<link rel="stylesheet" type="text/css" href="../../css/owl.carousel.css">
+<link rel="stylesheet" type="text/css" href="../../css/owl.theme.css">
+<script src="../../js/mui.min.js"></script>
+<script type="text/javascript" src="../../js/jquery.min.js"></script>
+<script type="text/javascript"
+	src="http://api.map.baidu.com/api?v=2.0&ak=29BFG3sykPW7HPCKcFvjwyHa"></script>
+<script type="text/javascript" src="../../js/owl.carousel.js"></script>
+<script type="text/javascript" src="../../js/angular.min.js"></script>
+<script src="../../js/angular-cookies.min.js"></script>
+<script src="../../js/angular-sanitize.min.js"></script>
+<script src="../../js/util.js"></script>
+<script src="https://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
+<title>商城</title>
+</head>
+<style type="text/css">
+	.owl-item a{height: 6.45rem;min-height: 6.45rem;}
+  .owl-carousel .owl-item a img {
+        height: 6.45rem;
+        min-height: 6.54rem;
+    }
+  .owl-theme .owl-controls .owl-page.active span, .owl-theme .owl-controls.clickable .owl-page:hover span{background: #cc0422;}
+  	.owl-theme .owl-controls .owl-page span{background: #fff;}
+  .ng-cloak{display: none;}
+  .owl-theme .owl-controls{bottom: 0.2rem;}
+  .store_banner,.store_banner img{
+  	height: 12.88rem;
+  	overflow: hidden;
+  }
+  .owl-theme .owl-controls {
+    left: 88%;
+   }
+  @media (min-width: 360px){
+    .owl-item a{
+        height:7.26rem;
+        min-height: 7.26rem;
+    }
+    .owl-carousel .owl-item a img {
+        height: 14.489rem;
+    }
+     .owl-theme .owl-controls{left: 89%;}
+    .store_banner,.store_banner img{
+  		height: 14.489rem;
+  	}
+  }
+  @media (min-width: 375px) {
+    .owl-item a{
+        height:7.56rem;
+        min-height: 7.56rem;
+    }
+    .owl-carousel .owl-item a img {
+        height: 15.1rem;
+    }
+     .owl-theme .owl-controls{left: 90%;}
+    .store_banner,.store_banner img{
+  		height: 15.1rem;
+  	}
+  }
+   @media (min-width: 414px) {
+    .owl-item a{
+            height:8.348rem;
+            min-height: 8.348rem;
+        }
+        .owl-carousel .owl-item a img {
+            height:16.66rem;
+        }
+         .owl-theme .owl-controls{left: 91%;}
+     .store_banner,.store_banner img{
+  		height:16.66rem;
+  	}
+   }
+</style>
+<body class="notice_back" ng-cloak>
+	<div style="position: relative;" ng-if="banners.length>0">
+		<div class="store_top store_searchtop" style="z-index: 99">
+				<div class="store_region"><input type="" readonly class="cell-input" value="{{city}}" id="J_Address"></div>
+				<div class="search_import store_search">
+					<input type="text" placeholder="请输入您要搜索的商品" ng-click="searchClick()"  readonly="">
+				</div>
+		</div>
+		<div class="store_banner owl-carousel" id="owl-carousel">
+			<img ng-repeat = "banner in banners" ng-click="toBanerDetail(banner)" ng-src="{{banner.imageUrl}}" render-finish ng-cloak>
+		</div>
+	</div>
+	<div class="store_top" ng-if="banners.length==0" style="border-bottom: 1px solid #eee;">
+		<div class="store_region"><input type="" readonly class="cell-input" value="{{city}}" id="J_Address"></div>
+		<div class="search_import store_search">
+			<input type="text" placeholder="请输入您要搜索的商品" ng-click="searchClick()"  readonly="">
+		</div>
+	</div>
+    <ul class="store_classify"> 
+    	<li ng-repeat="menu in menus" ng-cloak ng-click="toMenu(menu.url)">
+    		<img ng-src="{{menu.picture}}">
+    		<p ng-bind="menu.name"></p>
+    	</li>
+    	<li ng-repeat="goodsType in goodsTypes" ng-cloak ng-click="toGoodsType(goodsType.id)">
+    		<img ng-src="{{goodsType.picture}}">
+    		<p ng-bind="goodsType.name"></p>
+    	</li>
+    </ul>
+
+    <!-- 活动一 -->
+    <div ng-repeat="activity in activitys" style="margin-bottom: 3.733rem"  ng-cloak ng-click="activityDetail(activity.id)" ng-bind="activity.picture | break" compile-html>
+    </div>
+    <!-- 活动一    end-->
+
+    <!-- 活动二 -->
+	<!-- <div class="index_banner store_activ_banner " id="roll_commoidy">
+	    <div id="owl-carousel" class="owl-carousel">
+	        <a class="item"><img src="img/store_activbanner.png"></a>
+	        <a class="item"><img src="img/store_activbanner.png"></a>
+	    </div>
+	</div> -->
+	<!-- 活动二    end-->
+
+	<!-- 活动三 -->
+	<!-- 活动三     end-->
+	<div class="store_like" style="display: none">
+		<h3 class="store_title"><span>猜你喜欢</span></h3>
+		<ul>
+			<li>
+				<img src="../../img/store_commo.png">
+				<h3>999感冒灵颗粒</h3>
+				<div class="store_label">
+					<span>自营</span>
+					<span>7.5折</span>
+				</div>
+				<p>¥15.00</p>
+			</li>
+			<li>
+				<img src="../../img/store_commo.png">
+				<h3>999感冒灵颗粒</h3>
+				<div class="store_label">
+					<span>自营</span>
+					<span>7.5折</span>
+				</div>
+				<p>¥15.00</p>
+			</li>
+		</ul>
+	</div>
+	
+	<!-- <ng-include src="'../../common/mallFoot.html'" ng-init="footCheck=1"></ng-include> -->
+
+	<script type="text/javascript" src="../../js/ydui.js"></script>
+	<script type="text/javascript" src="../../js/goods/store_index.js"></script>
+	<script type="text/javascript" src="../../js/foot.js"></script>
+</body>
+</html>

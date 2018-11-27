@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="orderApp" ng-controller="orderCon">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=no">
+<link rel="stylesheet" type="text/css" href="../../css/mui.min.css">
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+<script src="../../js/mui.min.js"></script>
+<script type="text/javascript" src="../../js/jquery.min.js"></script>
+<script type="text/javascript" src="../../js/angular.min.js"></script>
+<script src="../../js/angular-sanitize.min.js"></script>
+<script src="../../js/util.js"></script>
+</head>
+<body class="notice_back" ng-cloak>
+	<div class="affirm_address" ng-click="checkAddr($event)" ng-if="null!=shippingAddressId">
+		<h3><span class="left_icon"></span>收货信息 </h3>
+		<span ng-bind="consignee"></span> <span ng-if="null!=province">{{(province | limitTo:1:province.length-1)=='市'?'':province}}{{city}}{{area}}{{detailedAddress}}</span> <span ng-bind="shippingAddressPhone"></span>
+	</div>
+	<div class="affirm_address" ng-click="checkAddr($event)" ng-if="null==shippingAddressId">
+		<h3><span class="left_icon"></span>收货信息 </h3>
+		<span>请选择收货地址</span>
+	</div>
+	<div class="order_con affirm_order" ng-cloak>
+		<div class="order_goods" ng-repeat="good in goods" ng-cloak render-finish>
+			<img ng-src="{{good.picture}}" ng-cloak>
+			<div class="order_detail">
+				<h3>
+					<span ng-bind="good.name"></span> <span ng-cloak>¥{{good.price |
+						number:2}}</span>
+				</h3>
+				<p ng-bind="good.description"
+					style="overflow : hidden;text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 2;-webkit-box-orient: vertical;"></p>
+				<p class="order_num" ng-init="goods.buyCount=buyCount" ng-cloak>
+					{{good.specifications}}<span>x {{good.buyCount}}</span>
+				</p>
+			</div>
+		</div>
+		<p class="order_sum" ng-init="postage=0.00" ng-cloak>
+			共{{goods.length}}件物品 合计：¥<span ng-bind="prices + postage | number:2"></span>（含运费¥{{postage | number:2}}）
+		</p>
+		<span class="left_icon"></span>
+	</div>
+	<div class="affirm_express">
+		<h3>
+			<span class="left_icon"></span>快递说明
+		</h3>
+		<ul>
+			<li>1.您的订单将通过顺丰次日达安全、快速地送到您的手上。</li>
+			<li>2.我们向您保证：全国大部分地区当日17点前完成付款的订单将于次日送达。</li>
+		</ul>
+	</div>
+	<div class="affirm_bot">
+		<h3>
+			实付：<span ng-cloak>¥{{prices + postage | number:2}}</span>
+		</h3>
+		<button ng-click="addOrder()">确认订单</button>
+	</div>
+	<!-- <div class="mui-iframe-wrapper"
+		style="top: 0px; bottom: 0px;height: 100%;background-color: #fff;overflow:hidden;display:none;z-index: 99999">
+		<iframe src="../shippingaddress/select_address.html?type=true"
+			id="select_address" name="select_address"></iframe>
+	</div> -->
+	<script type="text/javascript" src="../../js/goods/affirm_order.js"></script>
+	<script type="text/javascript" src="../../js/posCancle.js"></script>
+	<script type="text/javascript" src="../../js/foot.js"></script>
+</body>
+</html>

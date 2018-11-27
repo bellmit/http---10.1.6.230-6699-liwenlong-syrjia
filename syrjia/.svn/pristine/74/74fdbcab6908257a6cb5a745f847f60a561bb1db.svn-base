@@ -1,0 +1,430 @@
+package cn.syrjia.util;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.StringUtils;
+
+import cn.syrjia.common.BaseDaoInterface;
+import cn.syrjia.entity.SendTempMsg;
+import cn.syrjia.entity.TemplateData;
+import cn.syrjia.wxPay.wxPay.util.WeiXinConfig;
+
+public class sendModelMsgUtil {
+	
+	static String  http="https://mobile.syrjia.com/syrjia/weixin/";
+	
+	/**
+	 * 客服发送消息
+	 */
+	public static final String sendCustomUrl = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=";
+
+	public static <T extends BaseDaoInterface> String sendAddRecipeOrder(String openId,
+			String doctorId, T t, String url) {
+		
+		Map<String,Object> weiXinUser=t.queryOpenIdByPatientId(openId);
+		
+		if(null==weiXinUser){
+			//return "-1";
+		}else{
+			openId=weiXinUser.get("openId").toString();
+		}
+		
+
+		SendTempMsg sendTempMsg = new SendTempMsg();
+		sendTempMsg.setTouser(openId);
+		//sendTempMsg.setTemplate_id("b2mx7o0FL1LjCFj0Ynhx2p6gxFqskx8KpmDUC8dg85Y");
+		sendTempMsg.setTemplate_id("9STPkIGH46Mk6tuk-mrOKN2UPGzlbsbI-zxVCoOcljM");
+		sendTempMsg.setUrl("https://open.weixin.qq.com/connect/oauth2/authorize?appid="+WeiXinConfig.appId+"&redirect_uri="+http+url+"&response_type=code&scope=snsapi_base&state=1#wechat_redirect");
+		List<TemplateData> templateDatat = new ArrayList<>();
+		
+		Map<String,Object> user = t.queryDoctorOne(doctorId);
+
+		TemplateData templateData = new TemplateData();
+		templateData.setValue("你好，"+user.get("docName")+"医生已为您开具调理方案");
+
+		TemplateData templateData1 = new TemplateData();
+
+		templateData1.setValue(user.get("docName").toString());
+
+		TemplateData templateData2 = new TemplateData();
+
+		templateData2.setValue(weiXinUser.get("name").toString());
+
+		TemplateData templateData3 = new TemplateData();
+
+		templateData3.setValue(DateTime.getTime());
+
+		TemplateData templateData4 = new TemplateData();
+		templateData4.setValue("请尽快支付，以免贻误病情，保证疗效。付款后请等待平台为您配药并配送，如有任何问题请联系客服。");
+
+		templateDatat.add(templateData);
+		templateDatat.add(templateData1);
+		templateDatat.add(templateData2);
+		templateDatat.add(templateData3);
+		templateDatat.add(templateData4);
+
+		sendTempMsg.setDatalist(templateDatat);
+		return SendTempUtil.sendMsg(sendTempMsg, t);
+	}
+	
+	public static <T extends BaseDaoInterface> String sendUpdateRecipeOrder(String openId,
+			String doctorId, T t, String url) {
+		
+		Map<String,Object> weiXinUser=t.queryOpenIdByPatientId(openId);
+		
+		if(null==weiXinUser){
+			//return "";
+		}else{
+			openId=weiXinUser.get("openId").toString();
+
+		}
+		
+		SendTempMsg sendTempMsg = new SendTempMsg();
+		sendTempMsg.setTouser(openId);
+		//sendTempMsg.setTemplate_id("b2mx7o0FL1LjCFj0Ynhx2p6gxFqskx8KpmDUC8dg85Y");
+		sendTempMsg.setTemplate_id("9STPkIGH46Mk6tuk-mrOKN2UPGzlbsbI-zxVCoOcljM");
+		sendTempMsg.setUrl("https://open.weixin.qq.com/connect/oauth2/authorize?appid="+WeiXinConfig.appId+"&redirect_uri="+http+url+"&response_type=code&scope=snsapi_base&state=1#wechat_redirect");
+		List<TemplateData> templateDatat = new ArrayList<>();
+
+		Map<String,Object> user = t.queryDoctorOne(doctorId);
+		
+		TemplateData templateData = new TemplateData();
+		templateData.setValue("你好，"+user.get("docName")+"医生已为您调整调理方案");
+
+
+		TemplateData templateData1 = new TemplateData();
+
+		templateData1.setValue(user.get("docName").toString());
+		
+		TemplateData templateData2 = new TemplateData();
+
+		templateData2.setValue(DateTime.getTime());
+
+		TemplateData templateData3 = new TemplateData();
+
+		templateData3.setValue(DateTime.getTime());
+
+		TemplateData templateData4 = new TemplateData();
+		templateData4.setValue("请尽快支付，以免贻误病情，保证疗效。付款后请等待平台为您配药并配送，如有任何问题请联系客服。");
+
+		templateDatat.add(templateData);
+		templateDatat.add(templateData1);
+		templateDatat.add(templateData2);
+		templateDatat.add(templateData3);
+		templateDatat.add(templateData4);
+
+		sendTempMsg.setDatalist(templateDatat);
+		return SendTempUtil.sendMsg(sendTempMsg, t);
+	}
+
+	public static <T extends BaseDaoInterface> String sendOrder(String openId,String orderNo,String price, String goods,T t, String url) {
+		
+		Map<String,Object> weiXinUser=t.queryOpenIdByPatientId(openId);
+		
+		if(null==weiXinUser){
+			//return;
+		}else{
+			openId=weiXinUser.get("openId").toString();
+		}
+		
+		SendTempMsg sendTempMsg = new SendTempMsg();
+		sendTempMsg.setTouser(openId);
+		//sendTempMsg.setTemplate_id("7AJcN9phBw_0itrtpqYBi7FlJT_kE7zdxsTIwxaQhGY");
+		sendTempMsg.setTemplate_id("jBijCcgz_6Wz2kapSKYcALUe3S0ZXYSZ5Gp4qkeaLAg");
+		sendTempMsg.setUrl(http+url);
+		List<TemplateData> templateDatat = new ArrayList<>();
+		
+		TemplateData templateData = new TemplateData();
+		templateData.setValue("您的订单已支付成功");
+
+		TemplateData templateData1 = new TemplateData();
+
+		templateData1.setValue(orderNo);
+
+		TemplateData templateData2 = new TemplateData();
+
+		templateData2.setValue(price);
+		
+		TemplateData templateData3 = new TemplateData();
+		templateData3.setValue(goods);
+
+		TemplateData templateData4 = new TemplateData();
+		templateData4.setValue("点击查看订单状态");
+
+		templateDatat.add(templateData);
+		templateDatat.add(templateData1);
+		templateDatat.add(templateData2);
+		templateDatat.add(templateData3);
+		templateDatat.add(templateData4);
+
+		sendTempMsg.setDatalist(templateDatat);
+		return SendTempUtil.sendMsg(sendTempMsg, t);
+	}
+	
+	/**
+	 * 购买成功通知(服务)
+	 * @param openId
+	 * @param orderNo
+	 * @param price
+	 * @param goods
+	 * @param t
+	 * @param url
+	 */
+	public static <T extends BaseDaoInterface> String sendBuySuccess(String openId,String serviceName,String doctorName, String infirmaryName,String patientName,String sex,T t, String url) {
+		
+		Map<String,Object> weiXinUser=t.queryOpenIdByPatientId(openId);
+		
+		if(null==weiXinUser){
+			return "-1";
+		}
+		
+		openId=weiXinUser.get("openId").toString();
+		
+		SendTempMsg sendTempMsg = new SendTempMsg();
+		sendTempMsg.setTouser(openId);
+		//sendTempMsg.setTemplate_id("DtJ-WUAI18yfnSnPNy_HwYQuWGlNn8bM99EwTaO_fzI");
+		sendTempMsg.setTemplate_id("kfxfwMU3tygKRBVIxtZlZm2mhYgQ0IysAydsKsPMwP0");
+		sendTempMsg.setUrl(http+url);
+		List<TemplateData> templateDatat = new ArrayList<>();
+		
+		TemplateData templateData = new TemplateData();
+		templateData.setValue("您已成功购买"+serviceName+"服务。");
+		
+		TemplateData templateData1 = new TemplateData();
+		templateData1.setValue(serviceName);
+		
+		TemplateData templateData2 = new TemplateData();
+		templateData2.setValue(DateTime.getTime());
+		
+		TemplateData templateData3 = new TemplateData();
+		templateData3.setValue(doctorName+" "+infirmaryName+"医院");
+		
+		TemplateData templateData4 = new TemplateData();
+		templateData4.setValue(patientName+" "+sex);
+		
+		TemplateData templateData5 = new TemplateData();
+		templateData5.setValue("点击查看详情");
+		
+		templateDatat.add(templateData);
+		templateDatat.add(templateData1);
+		templateDatat.add(templateData2);
+		templateDatat.add(templateData3);
+		templateDatat.add(templateData4);
+		templateDatat.add(templateData5);
+		
+		sendTempMsg.setDatalist(templateDatat);
+		return SendTempUtil.sendMsg(sendTempMsg, t);
+	}
+	
+	/**
+	 * 医嘱(群发公告)
+	 * @param openId
+	 * @param orderNo
+	 * @param price
+	 * @param goods
+	 * @param t
+	 * @param url
+	 */
+	public static <T extends BaseDaoInterface> void sendNotice(String openId,String doctorName, String infirmaryName,String content,T t, String url) {
+		
+		Map<String,Object> weiXinUser=t.queryOpenIdByPatientId(openId);
+		
+		if(null==weiXinUser){
+			return;
+		}
+		
+		openId=weiXinUser.get("openId").toString();
+		
+		SendTempMsg sendTempMsg = new SendTempMsg();
+		sendTempMsg.setTouser(openId);
+		//sendTempMsg.setTemplate_id("ZPo6eojtsXgHtkg8WMldcuDmEkT7aO5qSdoySWUTAuQ");
+		sendTempMsg.setTemplate_id("YBD7MXVVtADyIswPJKl3wj_6QOqCJ6fnB1VVU1qNmdc");
+		sendTempMsg.setUrl("https://open.weixin.qq.com/connect/oauth2/authorize?appid="+WeiXinConfig.appId+"&redirect_uri="+http+url+"&response_type=code&scope=snsapi_base&state=1#wechat_redirect");
+		List<TemplateData> templateDatat = new ArrayList<>();
+		
+		TemplateData templateData = new TemplateData();
+		templateData.setValue(doctorName+"医生：发布了公告内容，请您及时查看。");
+		
+		TemplateData templateData1 = new TemplateData();
+		templateData1.setValue(doctorName);
+		
+		TemplateData templateData2 = new TemplateData();
+		templateData2.setValue(infirmaryName);
+		
+		TemplateData templateData3 = new TemplateData();
+		templateData3.setValue(content);
+		
+		TemplateData templateData4 = new TemplateData();
+		templateData4.setValue("点击详情查看公告内容");
+		
+		templateDatat.add(templateData);
+		templateDatat.add(templateData1);
+		templateDatat.add(templateData2);
+		templateDatat.add(templateData3);
+		templateDatat.add(templateData4);
+		
+		sendTempMsg.setDatalist(templateDatat);
+		SendTempUtil.sendMsg(sendTempMsg, t);
+	}
+	
+	/**
+	 * 服务评价提醒
+	 * @param openId
+	 * @param orderNo
+	 * @param price
+	 * @param goods
+	 * @param t
+	 * @param url
+	 */
+	public static <T extends BaseDaoInterface> void sendEval(String openId,String serviceName,String doctorName,String docPosition,String infirmaryName,String patientName,String sex,String age,T t, String url) {
+		
+		Map<String,Object> weiXinUser=t.queryOpenIdByPatientId(openId);
+		
+		if(null==weiXinUser){
+			return;
+		}
+		
+		openId=weiXinUser.get("openId").toString();
+		
+		SendTempMsg sendTempMsg = new SendTempMsg();
+		sendTempMsg.setTouser(openId);
+		//sendTempMsg.setTemplate_id("_9zHjd6VlDa6vdcont6iJlFumjWEvkdH38eYbUJscBw");
+		sendTempMsg.setTemplate_id("lJKOlIUwKl__Umv4xmslNgxGet_m8-4ajuBeKn2CCew");
+		sendTempMsg.setUrl("https://open.weixin.qq.com/connect/oauth2/authorize?appid="+WeiXinConfig.appId+"&redirect_uri="+http+url+"&response_type=code&scope=snsapi_base&state=1#wechat_redirect");
+		List<TemplateData> templateDatat = new ArrayList<>();
+		
+		TemplateData templateData = new TemplateData();
+		templateData.setValue("您的"+serviceName+"订单已完成，如对医生服务满意，请予评价！");
+		
+		TemplateData templateData1 = new TemplateData();
+		templateData1.setValue(patientName+"  "+sex+"  "+age+"岁");
+		
+		TemplateData templateData2 = new TemplateData();
+		templateData2.setValue(infirmaryName+" "+doctorName+"  "+docPosition);
+		
+		TemplateData templateData3 = new TemplateData();
+		templateData3.setValue("现在就去评价");
+		
+		templateDatat.add(templateData);
+		templateDatat.add(templateData1);
+		templateDatat.add(templateData2);
+		templateDatat.add(templateData3);
+		
+		sendTempMsg.setDatalist(templateDatat);
+		SendTempUtil.sendMsg(sendTempMsg, t);
+	}
+	
+	/**
+	 * 复诊提醒
+	 * @param openId
+	 * @param orderNo
+	 * @param price
+	 * @param goods
+	 * @param t
+	 * @param url
+	 */
+	public static <T extends BaseDaoInterface> void sendVisit(String openId,String visitDate,String doctorName,T t, String url) {
+		
+		Map<String,Object> weiXinUser=t.queryOpenIdByPatientId(openId);
+		
+		if(null==weiXinUser){
+			return;
+		}
+		
+		openId=weiXinUser.get("openId").toString();
+		
+		SendTempMsg sendTempMsg = new SendTempMsg();
+		sendTempMsg.setTouser(openId);
+		//sendTempMsg.setTemplate_id("p2lTbhZDGHBwVge4fr9Qlbsd4NyMtQQa86FAn6RZ4mM");
+		sendTempMsg.setTemplate_id("llJSISoJk8jAl2wUfsdnT6xOdnlqp2WZTcbHhD21Zyk");
+		sendTempMsg.setUrl(http+url);
+		List<TemplateData> templateDatat = new ArrayList<>();
+		
+		TemplateData templateData = new TemplateData();
+		templateData.setValue("小主，复诊的时间到了，为了您的健康，一定要前去复诊哦！");
+		
+		TemplateData templateData1 = new TemplateData();
+		templateData1.setValue(visitDate);
+		
+		TemplateData templateData2 = new TemplateData();
+		templateData2.setValue(doctorName);
+		
+		TemplateData templateData3 = new TemplateData();
+		templateData3.setValue("点击查看详情");
+		
+		templateDatat.add(templateData);
+		templateDatat.add(templateData1);
+		templateDatat.add(templateData2);
+		templateDatat.add(templateData3);
+		
+		sendTempMsg.setDatalist(templateDatat);
+		SendTempUtil.sendMsg(sendTempMsg, t);
+	}
+	
+	/**
+	 * 客服发送消息
+	 * 
+	 * @return
+	 */
+	public static <T extends BaseDaoInterface> String sendCustomMsg(
+			Map<String, Object> params, T t) {
+		String jsonString = "";
+
+		if (params != null) {
+			String acToken = t.queryToken();
+			if(StringUtils.isEmpty(acToken)){
+				GetAccessToken<T> getAccessToken = new GetAccessToken<T>(
+						t);
+				acToken = getAccessToken.getTokenAll();
+			}
+			String reqUrl = sendCustomUrl + acToken;// 客服发送消息请求url
+			Map<String, Object> mStr = new HashMap<String, Object>();
+			mStr.put("touser", params.get("toUser"));
+			mStr.put("msgtype", params.get("msgtype"));
+			// 设置哪个客服发送
+			Map<String, Object> customService = new HashMap<String, Object>();
+			customService.put("kf_account", TemplateIdUtil.kf_account);
+			mStr.put("customservice", customService);
+			Map<String, Object> articles = new HashMap<String, Object>();
+			String content = params.get("content").toString();
+			if(params.containsKey("url")&&params.get("url")!=null&&!"".equals(params.get("url"))&&!StringUtils.isEmpty(params.get("url").toString())){
+				System.out.println("url+++++++++++++++"+params.get("url").toString());
+				content += params.get("url").toString();
+			}
+			System.out.println(content+"发送内容");
+			boolean contains = params.containsKey("urlMap");    //判断是否包含指定的键值
+			System.out.println(contains+"QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ");
+			if(contains){
+				if(params.get("urlMap")!=null&&!"".equals(params.get("urlMap"))&&!StringUtils.isEmpty(params.get("urlMap").toString())){
+					content += params.get("urlMap");
+				}
+			}
+			if(params.containsKey("footFollowNote")){
+				content +=params.get("footFollowNote");
+			}
+			articles.put("content",content);
+			mStr.put("text", articles);
+
+			String jsonStr = JSONObject.fromObject(mStr).toString();
+			JSONObject jsonObject = HttpReuqest.httpRequest(reqUrl, "POST",
+					jsonStr);
+			int result = 0;
+			if (null != jsonString) {
+				if (0 != jsonObject.getInt("errcode")) {
+					result = jsonObject.getInt("errcode");
+					System.out.println("错误 errcode:{} errmsg:{}"+
+							jsonObject.getInt("errcode")+
+							jsonObject.getString("errmsg"));
+				}
+			}
+			System.out.println("模板消息发送结果：" + result);
+			jsonString = result + "";
+		}
+		return jsonString;
+	}
+}

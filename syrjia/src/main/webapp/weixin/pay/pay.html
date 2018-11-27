@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="payApp" ng-controller="payCon">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=no">
+<link rel="stylesheet" type="text/css" href="../../css/mui.min.css">
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+<script src="../../js/mui.min.js"></script>
+<script type="text/javascript" src="../../js/jquery.min.js"></script>
+<script type="text/javascript" src="../../js/angular.min.js"></script>
+<script src="../../js/angular-sanitize.min.js"></script>
+<script src="../../js/util.js"></script>
+<script src="https://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
+<title>支付</title>
+</head>
+<body class="notice_back">
+	<p class="pay_top">需支付<span ng-cloak>¥{{price | number:2}}</span></p>
+	<div class="pay_con">
+		<div class="pay_title">
+			<span class="left_icon"></span>
+			选择支付方式
+		</div>
+		<ul class="pay_way" ng-init="check=1">
+			<li ng-click="check=1">
+				<div class="pay_left">
+					<img src="../../img/pay_w.png">
+					<h3>微信支付</h3>
+				</div>
+				<div class="pay_check" ng-class="{1:'pay_checked'}[check]"></div>
+			</li>
+			<li ng-click="check=2">
+				<div class="pay_left">
+					<img src="../../img/pay_z.png">
+					<h3>支付宝支付</h3>
+				</div>
+				<div class="pay_check" ng-class="{2:'pay_checked'}[check]"></div>
+			</li>
+			<li ng-click="check=3">
+				<div class="pay_left">
+					<img src="../../img/pay_another.png">
+					<h3>找人代付</h3>
+				</div>
+				<div class="pay_check" ng-class="{3:'pay_checked'}[check]"></div>
+			</li>
+		</ul>
+	</div>
+	<div class="wx_share" style="display: none"></div>
+	<div style="margin-bottom: 5rem;"></div>
+	<div class="evalua_finish">
+		<button ng-click="pay($event)">确定支付</button>
+	</div>
+	<script type="text/javascript" src="../../js/pay/pay.js"></script>
+	<script type="text/javascript" src="../../js/foot.js"></script>
+</body>
+</html>

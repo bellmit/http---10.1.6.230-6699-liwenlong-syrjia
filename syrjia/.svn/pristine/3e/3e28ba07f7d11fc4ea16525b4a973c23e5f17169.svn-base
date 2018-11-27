@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="collectApp" ng-controller="collectCon">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=no">
+	<link rel="stylesheet" type="text/css" href="../../css/mui.min.css">
+	<link rel="stylesheet" type="text/css" href="../../css/style.css">
+	<script src="../../js/mui.min.js"></script>
+	<script type="text/javascript" src="../../js/jquery.min.js"></script>
+	<script type="text/javascript" src="../../js/owl.carousel.js"></script>
+	<script src="../../js/swiper.min.js"></script>
+	<script type="text/javascript" src="../../js/angular.min.js"></script>
+	<script src="../../js/angular-sanitize.min.js"></script>
+	<script src="../../js/ng-infinite-scroll.js"></script>
+	<script src="../../js/util.js"></script>
+<title>收藏关注</title>
+<style type="text/css">
+.scroll {
+	overflow: scroll;
+}
+.collect_list li:last-child{border:none;}
+.know_article_con p{width:95%;}
+.cart_goods:last-child{border:none;}
+.clinic_score li {
+	border: 1px solid #ccc!important;
+}
+</style>
+</head>
+<body style="overflow: hidden;" ng-cloak>
+	<div class="search_top">
+		<div class="search_import collect_search">
+			<form action="javascript:return true;">
+			<input id="search" type="search" placeholder="搜索关键字" ng-model="search"
+			ng-keyup="myFunc($event)" class="ng-pristine ng-untouched ng-valid">
+					<span></span>
+			</form>
+		</div>
+		<a class="mui-action-back">取消</a>
+	</div>
+	<ul class="collect_title" ng-init="liClass=1">
+		<li style="width: 33.3%;" ng-class="{true:'collect_active'}[liClass==1]"
+			ng-click="liClass=1"><span>就诊医生</sapn>
+		</li>
+		<li style="width: 33.3%;" ng-class="{true:'collect_active'}[liClass==2]"
+			ng-click="updateRM(2)"><span>关注医生</sapn>
+		</li>
+		<li style="width: 33.3%;" ng-class="{true:'collect_active'}[liClass==3]"
+			ng-click="updateRM(3)"><span>收藏文章</sapn>
+		</li>
+		<!-- <li ng-class="{true:'collect_active'}[liClass==4]"
+			ng-click="liClass=4"><span>收藏商品</sapn>
+		</li> -->
+	</ul>
+	<div class="swiper-container" id="tabs-container">
+		<div class="swiper-wrapper">
+			<div class=" scroll jz" infinite-scroll-distance='0'
+				ng-class="{1:'',2:'ng-hide',3:'ng-hide',4:'ng-hide'}[liClass]"
+				ng-controller="myJZ" infinite-scroll='loadMore1("jz")'
+				infinite-scroll-disabled='jzDis'
+				infinite-scroll-immediate-check=true>
+				<div class="swiper-slide">
+					<ul ng-if="doclist.length!=0" class="clinic_list disease_list" ng-repeat="docs in doclist" >
+						<li ng-click="doctorDetail($event,docs.doctorId)">
+							<div class="clinic_main">
+								<div class="clinic_doctor_img">
+									<img src="{{docs.docUrl}}">
+								</div>
+								<div class="clinic_docright">
+									<h3>
+										<span>{{docs.docName}}<span>{{docs.positionName}}</span> </span> <i ng-bind="docs.moneys | splitMoney" compile-html></i>
+									</h3>
+									<p class="clinic_hospital">{{docs.infirmaryName}}</p>
+									<ul class="clinic_score" ng-bind="docs.illClassNames | splitIllClass" compile-html>
+										
+									</ul>
+									<p class="clinic_statistics">
+										<span>{{docs.payCount}}</span>人付款<i></i><span>{{docs.evaCount}}</span>人评价<i></i><span>{{docs.goodEvaRate}}%</span>好评
+									</p>
+								</div>
+							</div>
+							<div class="mine_doctor collect_ul">
+								<ul ng-bind="docs.jzLists | splitJzLists" compile-html>
+									<li></li>
+								</ul>
+							</div>
+						</li>
+					</ul>
+					<div id="know_more_jz" class="know_nomore" style="display: none;">
+			    		<span class="ng-scope">没有更多就诊医生了</span>
+		    		</div>
+					<ul ng-if="doclist.length==0" class="know_circle_con" >
+						<div  class="know_circle_con"  >
+			    			<img src="../../img/noarticle.png" class="know_noattention">
+			    			<a href="" class="know_more">暂无就诊医生</a>
+			    		</div>
+		    		</ul>
+				</div>
+			</div>
+			
+			<div class=" scroll gz" infinite-scroll-distance='0'
+				ng-class="{1:'ng-hide',2:'',3:'ng-hide',4:'ng-hide'}[liClass]"
+				ng-controller="myGZ" infinite-scroll='loadMore2("gz")'
+				infinite-scroll-disabled='gzDis'
+				infinite-scroll-immediate-check=true>
+				<div class="swiper-slide">
+					<ul class="clinic_list collect_list" >
+						<li ng-repeat="doc in docs">
+							<div class="clinic_main" ng-click="doctorDetail($event,doc.doctorId)">
+								<div class="clinic_doctor_img">
+									<img src="{{doc.docUrl}}">
+								</div>
+								<div class="clinic_docright">
+									<h3>
+										<span>{{doc.docName}}<span>{{doc.positionName}}</span> </span> <i ng-bind="doc.moneys | splitMoney" compile-html></i>
+									</h3>
+									<p class="clinic_hospital">{{doc.infirmaryName}}</p>
+									<ul class="clinic_score" ng-bind="doc.illClassNames | splitIllClass" compile-html>
+									</ul>
+									<p class="clinic_statistics">
+										<span>{{doc.payCount}}</span>人付款<i></i><span>{{doc.evaCount}}</span>人评价<i></i><span>{{doc.goodEvaRate}}%</span>好评
+									</p>
+								</div>
+
+							</div>
+						</li>
+					</ul>
+	    			<div id="know_more_gz" class="know_nomore" style="display: none;">
+			    		<span class="ng-scope">没有更多医生了</span>
+		    		</div>
+		    		<!-- <!-- 没有关注医生 -->
+		    		<div class="know_circle_con" id="GZ" style="display: none;">
+		    			<div  class="know_circle_con"  >
+				    			<img src="../../img/noarticle.png" class="know_noattention">
+				    			<a href="" class="know_more">暂无关注医生</a>
+			    		</div>
+		    		</div>
+		    		
+		    		
+				</div>
+			</div>
+			
+			<div class=" scroll wz" infinite-scroll-distance='0'
+				ng-class="{1:'ng-hide',2:'ng-hide',3:'',4:'ng-hide'}[liClass]"
+				ng-controller="myWZ" infinite-scroll='loadMore3("wz")'
+				infinite-scroll-disabled='wzDis'
+				infinite-scroll-immediate-check=true>
+				<div class="swiper-slide">
+					<div class="know_circle_con">
+			    		<ul class="know_hot">
+			    			<li  ng-repeat="knowledge in knowledges" ng-cloak>
+			    				<div class="know_hot_top">
+			    					<div class="hot_top_left">
+			    						<img src="{{knowledge.docUrl}}">
+			    						<h3><span>{{knowledge.docName}}</span><span>{{knowledge.docPosition}}</span><span ng-bind="knowledge.hosName|splitHosName"></span></h3>
+			    					</div>
+			    					<a class="know_followed" ng-if="knowledge.follow==2" ng-click="Foll($event,knowledge.doctorId,1)">已关注</a>
+			    					<a  ng-if="knowledge.follow==1" ng-click="Foll($event,knowledge.doctorId,2)">+关注</a>
+			    				</div>
+			    				<h3 class="know_hot_title">{{knowledge.title}}</h3>
+			    				<p ng-if="knowledge.type==1||knowledge.type==3" class="know_hot_con" ng-bind="knowledge.content | splitContent" ng-click="detail(knowledge.id)" compile-html></p>
+			    				<div ng-if="knowledge.type==4" class="know_hot_main">
+			    					<div class="know_hot_left">
+			    						<p compile-html  ng-click="detail(knowledge.id)" ng-bind="knowledge.content" ></p>
+			    					</div>
+			    					<div class="know_hot_img">
+			    						<img src="{{knowledge.imgUrl}}">
+			    					</div>
+			    				</div>
+			    				<div ng-if="knowledge.type==2" class="know_hot_main">
+			    					<div class="know_article_con" ng-click="detail(knowledge.id)">
+				    					<p compile-html  ng-click="detail(knowledge.id)" ng-bind="knowledge.content | splitContent"></p>
+				    				</div>
+			    					<div class="know_hot_img">
+			    						<img src="{{knowledge.videoShowUrl}}">
+			    					</div>
+			    				</div>
+			    				<div class="know_article_con">
+			    					<h3  ng-bind="knowledge.labelNames | splitLabelNames" compile-html></h3>
+			    				</div>
+			    				<div class="know_operate hot_operate">
+			    					<span ng-if="knowledge.collect==2" class="know_collect know_collected" ng-click="collect($event,knowledge.id,knowledge)">{{knowledge.collectNum}}收藏</span>
+				    					<span ng-if="knowledge.collect==1" class="know_collect " ng-click="collect($event,knowledge.id,knowledge)">{{knowledge.collectNum}}收藏</span>
+				    					<span ng-if="knowledge.praise==2" class="know_praise" ng-click="praise($event,knowledge.id,knowledge)">{{knowledge.pointNum}}点赞</span>
+				    					<span ng-if="knowledge.praise==1" class="know_praise know_praised" ng-click="praise($event,knowledge.id,knowledge)">{{knowledge.pointNum}}点赞</span>
+			    					<span class="know_review" ng-click="detail(knowledge.id)">{{knowledge.plNum}}评论</span>
+			    					<!-- <span class="know_share" ng-click="share(knowledge.id)"><span></span>{{knowledge.shareNum}}分享</span> -->
+			    				</div>
+			    			</li>
+			    		</ul>
+			    		<div id="know_more_sc" class="know_nomore" style="display: none;">
+				    		<span class="ng-scope">没有更多文章了</span>
+			    		</div>
+			    		<!-- <!-- 没有关注医生 -->
+			    		<div class="know_circle_con" id="scWZ" style="display: none;">
+			    			<div  class="know_circle_con"  >
+				    			<img src="../../img/notext.png" class="know_noattention">
+				    			<a href="" class="know_more">暂无收藏的文章</a>
+				    		</div>
+			    		</div>
+	    			</div>
+	    		</div>
+    		</div>
+			<div class=" scroll sc" infinite-scroll-distance='0'
+				ng-class="{1:'ng-hide',2:'ng-hide',3:'ng-hide',4:''}[liClass]"
+				ng-controller="mySC" infinite-scroll='loadMore4("sc")'
+				infinite-scroll-disabled='scDis'
+				infinite-scroll-immediate-check=true>
+				<div class="swiper-slide">
+					<div class="cart_list">
+						<div class="cart_sib">
+							<div class="cart_goods" ng-repeat=" good in goods">
+							<!-- 	<span class="cart_check cart_checked"></span> -->
+								<div class="cart_goodeail" ng-click="goodsDetail(good.id)">
+									<img src="{{good.picture}}">
+									<div class="cart_introduce">
+										<h3>{{good.name}}</h3>
+										<p class="cart_property">{{good.description}}</p>
+										<div class="cart_price">
+											<p>¥{{good.originalPrice}}</p>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="know_more_sp" class="know_nomore" style="display: none;">
+		    		<span class="ng-scope">没有更多商品了</span>
+	    		</div>
+				<ul ng-if="goods.length==0" class="know_circle_con" >
+					<div  class="know_circle_con"  >
+		    			<img src="../../img/notext.png" class="know_noattention">
+		    			<a href="" class="know_more">暂无收藏的商品</a>
+		    		</div>
+	    		</ul>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript" src="../../js/myself/mine_collect.js"></script>
+	<script type="text/javascript" src="../../js/foot.js"></script>
+</body>
+</html>

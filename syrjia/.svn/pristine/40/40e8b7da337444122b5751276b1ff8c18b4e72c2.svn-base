@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=no">
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+<link rel="stylesheet" type="text/css" href="../../css/mui.min.css">
+<script type="text/javascript" src="../../js/mui.min.js"></script>
+<script type="text/javascript" src="../../js/angular.min.js"></script>
+<script src="../../js/angular-sanitize.min.js"></script>
+<script type="text/javascript" src="../../js/jquery.min.js"></script>
+<script type="text/javascript" src="../../js/util.js"></script>
+<title>注册</title>
+<style type="text/css">
+.register_img {
+	margin-right: 0.5rem;
+	width:1.175rem;
+	height:1.5rem;
+}
+.regcode_bot button {
+    background: #da0428;
+    border-radius: 8px;
+}
+</style>
+</head>
+<body ng-app="doctorApp" ng-controller="doctorCon">
+	<div class="register_main"
+		style="background:url(../../img/drbackLogo.png) no-repeat center;background-size: 100% 100%;">
+		<div class="download_top" style="padding-top: 26%;">
+			<img src="../../img/down_logo.png">
+		</div>
+		<ul class="regcode_center">
+			<li class="regcode_input" style="display: flex;"><img src="../../img/drName.png" class="register_img">
+				<input type="text" ng-model="docName" placeholder="输入您的姓名"
+				maxlength="25"> <a ng-click="docName=null"
+				class="regcode_delete"></a></li>
+			<li class="regcode_input" style="display: flex;"><img src="../../img/drphone.png" class="register_img">
+				<input type="number" ng-model="phone" placeholder="输入手机号"
+				maxlength="11"></li>
+			<li class="regcode_code"><img src="../../img/drCode.png" class="register_img">
+				<input type="number" ng-model="code" placeholder="输入验证码"
+				maxlength="4">
+				<button ng-class="paraclass" style="background: none;"
+					ng-click="send()" ng-bind="paracont"></button></li>
+		</ul>
+		<div class="regcode_bot">
+			<button ng-click="register()">立即注册</button>
+		</div>
+	</div>
+	<script type="text/javascript"
+		src="../../js/register/doctor_register.js"></script>
+	<script type="text/javascript" src="../../js/foot.js"></script>
+</body>
+</html>

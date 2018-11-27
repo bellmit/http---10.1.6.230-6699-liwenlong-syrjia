@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+
+    <properties>
+        <property name="pattern">%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p [%21t] %-40.40logger{1.} %L: %m%n</property>
+        <Property name="logFileDIR">D:\log\syrjia</Property>
+    </properties>
+
+    <appenders>
+        <!-- 输出控制台日志的配置 -->
+        <Console name="console" target="SYSTEM_OUT">
+            <!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->
+            <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY"/>
+            <!-- 输出日志的格式 -->
+            <PatternLayout pattern="${pattern}"/>
+        </Console>
+
+        <RollingFile name="infoFile" fileName="${logFileDIR}\info.log" append="true"
+                     filePattern="${logFileDIR}\$${date:yyyy-MM}\info_%d{yyyy-MM-dd}.log">
+            <PatternLayout pattern="${pattern}"/>
+            <Filters>
+                <ThresholdFilter level="warn" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+            </Policies>
+        </RollingFile>
+
+        <RollingFile name="warnFile" fileName="${logFileDIR}\warn.log" append="true"
+                     filePattern="${logFileDIR}\$${date:yyyy-MM}\warn_%d{yyyy-MM-dd}.log">
+            <PatternLayout pattern="${pattern}"/>
+            <Filters>
+                <ThresholdFilter level="error" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="warn" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+            </Policies>
+        </RollingFile>
+
+        <RollingFile name="errorFile" fileName="${logFileDIR}\error.log" append="true"
+                     filePattern="${logFileDIR}\$${date:yyyy-MM}\error_%d{yyyy-MM-dd}.log">
+            <PatternLayout pattern="${pattern}"/>
+            <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+            </Policies>
+        </RollingFile>
+    </appenders>
+
+    <!-- 全局配置，默认所有的Logger都继承此配置 -->
+    <Loggers>
+        <!-- AsyncRoot - 异步记录日志 - 需要LMAX Disruptor的支持 -->
+        <AsyncRoot level="info" additivity="false" includeLocation="true">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="infoFile"/>
+            <AppenderRef ref="warnFile"/>
+            <AppenderRef ref="errorFile"/>
+        </AsyncRoot>
+
+        <logger name="org.springframework.web.servlet" level="error" />
+        <logger name="io.netty" level="error" />
+    </Loggers>
+
+</configuration>

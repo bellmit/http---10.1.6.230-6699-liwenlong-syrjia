@@ -1,0 +1,209 @@
+package cn.syrjia.hospital.dao;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import cn.syrjia.common.BaseDaoInterface;
+import cn.syrjia.hospital.entity.Department;
+import cn.syrjia.hospital.entity.Doctor;
+
+public interface DoctorDao extends BaseDaoInterface {
+	
+	/**
+	 * 获取医生钱包标识
+	 * @return
+	 */
+	public abstract String getDoctorSign();
+
+	/**
+	 * 条件查询医生列表
+	 * @param request
+	 * @param doctor
+	 * @param page
+	 * @param row
+	 * @return
+	 */
+	public abstract List<Map<String,Object>> queryDoctorList(HttpServletRequest request,Doctor doctor,Integer page,Integer row,String memberId,String searchSort,String illClassId,String area,List<Map<String,Object>> lockDoctorIds);
+	
+	/**
+	 * 查询医生职称
+	 * @return
+	 */
+	public abstract List<Map<String,Object>> queryPositions();
+	
+	/**
+	 * 查询医生科室信息
+	 * @return
+	 */
+	public abstract List<Map<String,Object>> queryDeparts();
+	
+	/**
+	 * 根据医生ID查询医生详情信息
+	 * @param doctorId
+	 * @return
+	 */
+	public abstract Map<String,Object> queryDocotrById(String doctorId,String memberId);
+	
+	/**
+	 * 查询医生名片
+	 * @param doctorId
+	 * @return
+	 */
+	public abstract Map<String,Object> queryDoctorByCard(String doctorId);
+	
+	/**
+	 * 根据医生ID查询医生线上调理信息
+	 * @param doctorId
+	 * @return
+	 */
+	public abstract Map<String,Object> queryDocotrSetById(String doctorId);
+	
+	/**
+	 * 根据医生ID查询医生线上调理信息(默认)
+	 * @param doctorId
+	 * @return
+	 */
+	public abstract Map<String, Object> queryDocotrSetDefault();
+	
+	/**
+	 * 根据医生ID查询医生评价信息（详情页面与评价列表共用）
+	 * @param doctorId
+	 * @return
+	 */
+	public abstract List<Map<String,Object>> queryDoctorEvaList(String doctorId,Integer row,Integer page,String _sign,String memberId);
+	
+	/**
+	 * 根据医生ID查询医生评价统计信息
+	 * @param doctorId
+	 * @return
+	 */
+	public abstract Map<String,Object> queryDoctorEvaCensus(String doctorId,String memberId);
+	
+	/**
+	 * 根据医生ID查询医生文章信息
+	 * @param doctorId
+	 * @return
+	 */
+	public abstract List<Map<String,Object>> queryDoctorArticleList(String memberId,String doctorId,Integer row,Integer page);
+	
+	/**
+	 * 分页查询我的医生页面列表
+	 * @param memberId
+	 * @return
+	 */
+	public abstract Map<String,Object> queryMyDoctorList(String memberId,Integer page,Integer row);
+	
+	/**
+	 * 分页查询我的医生页面列表
+	 * @param memberId
+	 * @return
+	 */
+	public abstract Map<String,Object> queryMyDoctorListWx(String memberId,Integer page,Integer row);
+	
+	/**
+	 * 根据搜索关键字搜索医生匹配列表
+	 * @param searchkey
+	 * @return
+	 */
+	public abstract List<Map<String,Object>> queryDoctorByKey(String searchkey);
+	
+	/**
+	 * 查询上级ID
+	 * @param doctorId
+	 * @return
+	 */
+	public abstract Map<String,Object> queryFollowId(String doctorId);
+	
+	/**
+	 * 查询医生坐诊信息
+	 * @param doctroId
+	 * @return
+	 */
+	public abstract List<Map<String,Object>> queryDoctorZzList(String doctroId,String zzDate);
+	
+	/**
+	 * 查询是否有坐诊信息
+	 * @param doctorId
+	 * @return
+	 */
+	public abstract List<Map<String,Object>> queryZzDataCountByDocId(String doctorId);
+	
+	/**
+	 * 查询从今天起7天内坐诊状态
+	 * @param doctorId
+	 * @return
+	 */
+	public abstract List<Map<String,Object>> querySevenZzStatus(String doctorId);
+
+	/**
+	 * 查询疾病及不时分类
+	 * @return
+	 */
+	public abstract List<Map<String,Object>> queryIllClass(Integer num);
+	
+	/**
+	 * 查询全部病症
+	 * @return
+	 */
+	public abstract List<Department> queryDepartments();
+	
+	/**
+	 * 查询患者病历本列表
+	 * @param orderType
+	 * @param patientId
+	 * @return
+	 */
+	public abstract List<Map<String,Object>> queryMedicalRecords(Integer orderType,String patientId,String memberId,Integer page,Integer row);
+	
+	/**
+	 * 查询问诊类型列表
+	 * @return
+	 */
+	public abstract List<Map<String,Object>> queryServerTypes();
+	
+	/**
+	 * 根据会员查询就诊人列表
+	 * 
+	 * @param memberId
+	 * @return
+	 */
+	public abstract List<Map<String, Object>> queryPatients(String memberId);
+	
+	/**
+	 * 查询开启锁定患者医生ID集合
+	 * @param memberId
+	 * @return
+	 */
+	public abstract Map<String,Object> queryLockPatientDoctor(String memberId);
+	
+	/**
+	 * 根据评价ID查询锦旗
+	 * @param evaId
+	 * @return
+	 */
+	public abstract Map<String, Object> queryJqImgs(String evaId);
+	
+	/**
+	 * 查询就诊记录
+	 * @param orderNo
+	 * @param doctorId
+	 * @return
+	 */
+	public abstract List<Map<String,Object>> queryJsRecords(String orderNo,String doctorId,String memberId);
+	
+	/**
+	 * 根据用户ID查询绑定关系和就诊关系医生集合
+	 * @param memberId
+	 * @return
+	 */
+	public abstract List<Map<String, Object>> queryScanAndJsIds(String memberId,String doctorId);
+
+	/**
+	 * 查询病症详情
+	 * @param id
+	 * @return
+	 */
+	public abstract Map<String,Object> queryIllClassById(String id);
+}

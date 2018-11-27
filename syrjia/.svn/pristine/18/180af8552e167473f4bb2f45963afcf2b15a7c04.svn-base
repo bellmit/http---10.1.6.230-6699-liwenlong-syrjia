@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="mineDoctorApp" ng-controller="mineDoctorCon">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=no">
+<link rel="stylesheet" type="text/css" href="../../css/mui.min.css">
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+<script src="../../js/mui.min.js"></script>
+<script type="text/javascript" src="../../js/jquery.min.js"></script>
+<script src="../../js/swiper.min.js"></script>
+<script type="text/javascript" src="../../js/angular.min.js"></script>
+<script src="../../js/angular-sanitize.min.js"></script>
+<script src="../../js/util.js"></script>
+<title>我的医生</title>
+<style type="text/css">
+.mui-pull-caption {
+	width: 100%;
+}
+
+.commo_none span {
+	background: #f6f5f3;
+}
+
+.mine_con .clinic_list li:last-child {
+	margin-bottom: 0;
+	margin-top: 0.43rem;
+}
+</style>
+</head>
+<body ng-cloak>
+	<div id="pullrefresh" class="mui-content mui-scroll-wrapper">
+		<div class="mui-scroll">
+			<div class="mine_main">
+				<div class="" ng-show="jzCount>0"
+					ng-class="{true:'mine_con'}[jzCount>0]">
+					<h3 class="mine_title">
+						就诊医生<span>（{{jzCount}}人）</span>
+					</h3>
+					<div class="mine_doctor" id="jz_{{jzDoc.doctorId}}"
+						ng-repeat="jzDoc in jzDoctors">
+						<div class="clinic_main"
+							ng-click="doctorDetail($event,jzDoc.doctorId,jzDoc.docName);">
+							<div class="clinic_doctor_img">
+								<img ng-src="{{jzDoc.docUrl}}">
+							</div>
+							<div class="clinic_docright">
+								<h3>
+									<span>{{jzDoc.docName}}<span>{{jzDoc.positionName}}</span>
+									</span>
+								</h3>
+								<p class="clinic_hospital" ng-bind="jzDoc.infirmaryName"></p>
+							</div>
+						</div>
+						<ul>
+							<li ng-repeat="jz in jzDoc.jzLists"
+								ng-click="toJzDetail($event,jz.doctorId,jz.patientId);"><span>
+									<i ng-bind="jz.createTime"></i>{{jz.patientName}}</span> <span
+								ng-bind="jz.serverName"></span> <span
+								ng-if="jz.paymentStatus==5">已结束</span> <span
+								ng-if="jz.paymentStatus==2" class="mine_ing">问诊中</span></li>
+						</ul>
+						<a class="mine_more" ng-show="jzDoc.jzLists.length>3"
+							id="seeMore_{{jzDoc.doctorId}}"><span>查看更多</span><i></i> </a>
+					</div>
+				</div>
+				<div class="mine_con _gzDoctors" style="display: none;">
+					<h3 class="mine_title">
+						关注医生<span>（{{gzCount}}人）</span>
+					</h3>
+					<ul class="clinic_list disease_list">
+						<li ng-repeat="gzDoc in gzDoctors" id="gz_{{gzDoc.doctorId}}"
+							ng-click="doctorDetail($event,gzDoc.doctorId,gzDoc.docName);">
+							<div class="clinic_main">
+								<div class="clinic_doctor_img">
+									<img ng-src="{{gzDoc.docUrl}}">
+								</div>
+								<div class="clinic_docright">
+									<h3>
+										<span>{{gzDoc.docName}}<span>{{gzDoc.positionName}}</span>
+										</span> <i ng-if="gzDoc.isAccpetAsk==1" ng-bind="gzDoc.moneys | splitMoney" compile-html></i>
+									</h3>
+									<p class="clinic_hospital" ng-bind="gzDoc.infirmaryName"></p>
+									<ul class="clinic_score"
+										ng-bind="gzDoc.illClassNames | splitIllClass" compile-html>
+									</ul>
+									<p class="clinic_statistics">
+										<span ng-bind="gzDoc.payCount"></span>人付款<i></i><span
+											ng-bind="gzDoc.evaCount"></span>人评价<i></i><span>{{gzDoc.goodEvaRate}}%</span>好评
+									</p>
+								</div>
+
+							</div></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- <p class="notAvailable" style="display: none">暂无我的医生</p> -->
+	<!-- 没有关注医生 -->
+	<div class="know_circle_con mine_none"
+		ng-show="jzCount==null&&gzCount==null">
+		<img src="../../img/noarticle.png" class="know_noattention">
+		<p class="know_noarticle">您还没有关注任何医生哦</p>
+		<a href="hospital_index.html" class="know_more">找医生</a>
+	</div>
+	<!-- 没有关注医生    end-->
+	<script type="text/javascript">
+		$(function() {
+
+			$(".mine_main").on("click", ".mine_more", function() {
+				if ($(this).find("i").hasClass("mine_up")) {
+					$(this).find("i").removeClass("mine_up");
+					$(this).find("span").html("查看更多");
+					$(this).prev().removeClass("mine_ul");
+				} else {
+					$(this).find("i").addClass("mine_up");
+					$(this).find("span").html("收起");
+					$(this).prev().addClass("mine_ul");
+				}
+
+			});
+		});
+	</script>
+	<script type="text/javascript" src="../../js/hospital/mine_doctor.js"></script>
+	<script type="text/javascript" src="../../js/foot.js"></script>
+</body>
+</html>

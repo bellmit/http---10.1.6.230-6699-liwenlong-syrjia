@@ -1,0 +1,715 @@
+package cn.syrjia.wxPay.wxPay.controller;
+
+import cn.syrjia.config.configCode;
+import cn.syrjia.dao.GoodsDao;
+import cn.syrjia.dao.GoodsOrderDao;
+import cn.syrjia.dao.GoodsShopCartDao;
+import cn.syrjia.entity.WXPayBean;
+import cn.syrjia.entity.vo.GoodsOrderDetail;
+import cn.syrjia.hospital.dao.DoctorDao;
+import cn.syrjia.hospital.dao.DoctorOrderDao;
+import cn.syrjia.service.GoodsService;
+import cn.syrjia.service.OrderService;
+import cn.syrjia.util.SessionUtil;
+import cn.syrjia.util.StringUtil;
+import cn.syrjia.util.Util;
+import cn.syrjia.weixin.util.StringUtils;
+import cn.syrjia.weixin.util.TenpayUtil;
+import cn.syrjia.wxPay.wxPay.service.WxPayService;
+import cn.syrjia.wxPay.wxPay.util.WeiXinConfig;
+import cn.syrjia.wxPay.wxPay.util.WxAppPayUtil;
+import net.sf.json.JSONObject;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.util.*;
+
+/**
+ * @author liwenlong
+ */
+@Controller
+@RequestMapping("/wx")
+public class WxPayController {
+
+    @Resource(name = "wxPayService")
+    WxPayService wxPayService;
+
+    @Resource(name = "orderService")
+    OrderService orderService;
+
+    @Resource(name = "goodsService")
+    GoodsService goodsService;
+
+    @Resource(name = "goodsShopCartDao")
+    GoodsShopCartDao goodsShopCartDao;
+
+    @Resource(name = "goodsOrderDao")
+    GoodsOrderDao goodsOrderDao;
+
+    @Resource(name = "goodsDao")
+    GoodsDao goodsDao;
+
+    @Resource(name = "doctorOrderDao")
+    DoctorOrderDao doctorOrderDao;
+
+    @Resource(name = "doctorDao")
+    DoctorDao doctorDao;
+
+    private Log logger = LogFactory.getLog(WxPayController.class);
+    // ---必须参数
+    // 商品描述根据情况修改
+    private String body = "SYRJIA";
+
+    String grantType = "authorization_code";
+    private WXPayBean jsApiBean;
+
+    /**
+     * 调用jsApi接口
+     *
+     * @return
+     */
+    @RequestMapping("/wxJsApiPay")
+    @ResponseBody
+    public Map<String, Object> wxJsApiPay(HttpServletRequest request,
+                                          String openId, String orderNo, String pay) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        String notifyUrl = "";
+        try {
+            Map<String, Object> order = null;
+            openId = SessionUtil.getOpenId(request);
+            logger.info("第一次openId" + openId);
+            // openId = "oq08A0_wIVXOQPYvVJabHWEKYfDs";
+            if (StringUtil.isEmpty(openId) || StringUtil.isEmpty(orderNo)) {
+                return Util.resultMap(configCode.code_1029, null);
+            } else {
+                //根据订单号查询订单信息
+                order = orderService.queryOrderByOrderNo(orderNo);
+                if (order == null) {
+                    //订单不存在
+                    return Util.resultMap(configCode.code_1071, null);
+                } else {
+                    //转数字
+                    Integer orderType = Integer.valueOf(order.get("orderType")
+                            .toString());
+                    Integer locktimes = null;
+                    if (Integer.valueOf(order.get("paymentStatus").toString()) == 2
+                            || Integer.valueOf(order.get("paymentStatus")
+                            .toString()) == 5) {
+                        return Util.resultMap(configCode.code_1024, null);
+                    }
+
+                    if (Integer.valueOf(order.get("paymentStatus").toString()) == 3) {
+                        return Util.resultMap(configCode.code_1033, null);
+                    }
+
+                    if (Integer.valueOf(order.get("paymentStatus").toString()) == 8) {
+                        return Util.resultMap(configCode.code_1034, null);
+                    }
+
+                    if (Integer.valueOf(order.get("paymentStatus").toString()) == 4) {
+                        return Util.resultMap(configCode.code_1027, null);
+                    }
+
+                    if (Integer.valueOf(order.get("paymentStatus").toString()) == 6) {
+                        return Util.resultMap(configCode.code_1026, null);
+                    }
+                    if (Integer.valueOf(order.get("paymentStatus").toString()) == 1) {
+                        if (Integer.valueOf(order.get("orderType").toString()) == 4
+                                || Integer.valueOf(order.get("orderType")
+                                .toString()) == 5
+                                || Integer.valueOf(order.get("orderType")
+                                .toString()) == 7
+                                || Integer.valueOf(order.get("orderType")
+                                .toString()) == 9) {
+                            //根据服务类型、就诊人ID查询是否存在未完成订单
+                            Integer count = doctorOrderDao
+                                    .checkNoFinishOrderByPatientId(
+                                            order.get("patientId").toString(),
+                                            order.get("doctorId").toString(),
+                                            orderType);
+                            if (count > 0) {
+                                return Util.resultMap(configCode.code_1072,
+                                        null);
+                            }
+                            //查询医生每天已接单数量
+                            Map<String, Object> dayMap = doctorOrderDao
+                                    .getDoctorOrderDayCount(
+                                            order.get("doctorId").toString(),
+                                            orderType);
+                            //根据医生ID查询医生详情信息
+                            Map<String, Object> docMap = doctorDao
+                                    .queryDocotrById(order.get("doctorId")
+                                            .toString(), order.get("memberId")
+                                            .toString());
+                            if (docMap == null) {
+                                return Util.resultMap(configCode.code_1032,
+                                        null);
+                            }
+                            Integer dayOrderCount = 0;
+
+                            if (dayMap != null) {
+                                dayOrderCount = Integer.valueOf(dayMap.get(
+                                        "dayOrderCount").toString());
+                            }
+                            //转数字格式
+                            Integer isOnlineTwGh = Integer.valueOf(docMap.get(
+                                    "isOnlineTwGh").toString());
+                            Integer isOnlinePhoneGh = Integer.valueOf(docMap
+                                    .get("isOnlinePhoneGh").toString());
+                            Integer isOnlineTwZx = Integer.valueOf(docMap.get(
+                                    "isOnlineTwZx").toString());
+                            Integer isOnlinePhoneZx = Integer.valueOf(docMap
+                                    .get("isOnlinePhoneZx").toString());
+                            if (orderType == 4 || orderType == 5) {
+                                if (isOnlineTwGh == 0) {
+                                    return Util.resultMap(configCode.code_1057,
+                                            null);
+                                } else {
+                                    if (!StringUtil.isEmpty(docMap
+                                            .get("acceptTwOrderCount"))) {
+                                        //转数字格式
+                                        Integer acceptTwOrderCount = Integer
+                                                .valueOf(docMap.get(
+                                                        "acceptTwOrderCount")
+                                                        .toString());
+                                        if (dayOrderCount - acceptTwOrderCount >= 0) {
+                                            return Util.resultMap(
+                                                    configCode.code_1116, null);
+                                        }
+                                    }
+                                }
+                            } else if (orderType == 6) {
+                                if (isOnlineTwZx == 0) {
+                                    return Util.resultMap(configCode.code_1054,
+                                            null);
+                                } else {
+                                    if (!StringUtil.isEmpty(docMap
+                                            .get("acceptTwZxOrderCount"))) {
+                                        Integer acceptTwZxOrderCount = Integer
+                                                .valueOf(docMap.get(
+                                                        "acceptTwZxOrderCount")
+                                                        .toString());
+                                        if (dayOrderCount
+                                                - acceptTwZxOrderCount >= 0) {
+                                            return Util.resultMap(
+                                                    configCode.code_1116, null);
+                                        }
+                                    }
+                                }
+                            } else if (orderType == 7 || orderType == 9) {
+                                if (isOnlinePhoneGh == 0) {
+                                    return Util.resultMap(configCode.code_1055,
+                                            null);
+                                } else {
+                                    if (!StringUtil.isEmpty(docMap
+                                            .get("acceptPhoneOrderCount"))) {
+                                        Integer acceptPhoneOrderCount = Integer
+                                                .valueOf(docMap
+                                                        .get("acceptPhoneOrderCount")
+                                                        .toString());
+                                        if (dayOrderCount
+                                                - acceptPhoneOrderCount >= 0) {
+                                            return Util.resultMap(
+                                                    configCode.code_1116, null);
+                                        }
+                                    }
+                                }
+                            } else if (orderType == 8) {
+                                if (isOnlinePhoneZx == 0) {
+                                    return Util.resultMap(configCode.code_1056,
+                                            null);
+                                } else {
+                                    if (!StringUtil.isEmpty(docMap
+                                            .get("acceptPhoneZxOrderCount"))) {
+                                        Integer acceptPhoneZxOrderCount = Integer
+                                                .valueOf(docMap
+                                                        .get("acceptPhoneZxOrderCount")
+                                                        .toString());
+                                        if (dayOrderCount
+                                                - acceptPhoneZxOrderCount >= 0) {
+                                            return Util.resultMap(
+                                                    configCode.code_1116, null);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        Map<String, Object> recordOrder = orderService
+                                .queryRecordOrderByMainOrderNo(orderNo);
+
+                        if (null != recordOrder
+                                && Integer.valueOf(recordOrder.get("state")
+                                .toString()) != 1) {
+                            return Util.resultMap(configCode.code_1105, null);
+                        }
+
+                        logger.info("------------jsApi start------------------------");
+                        logger.info("orderNo--------------------" + orderNo);
+                        notifyUrl = WeiXinConfig.notify_url;
+                        logger.info(openId + "调之前有没有");
+                        if (StringUtil.isEmpty(order.get("receiptsPrice"))
+                                || Double.valueOf(order.get("receiptsPrice")
+                                .toString()) == 0.0
+                                || StringUtil.isEmpty(order.get("orderPrice"))
+                                || Double.valueOf(order.get("orderPrice")
+                                .toString()) == 0.0) {
+                            return Util.resultMap(configCode.code_1060, null);
+                        } else if (Integer.valueOf(order.get("state")
+                                .toString()) == 0) {
+                            return Util.resultMap(configCode.code_1111, null);
+                        } else if (Integer.valueOf(order.get("paymentStatus")
+                                .toString()) == 1) {
+                            Map<String, Object> yfMap = getPositage(order);
+                            if (Integer.valueOf(yfMap.get("respCode")
+                                    .toString()) != 1001) {
+                                return yfMap;
+                            }
+                            // order.setReceiptsPrice(Double.valueOf(yfMap.get("data").toString()));
+                            // order.setReceiptsPrice(0.01);
+                            map = getFinalPackage(orderNo, openId,
+                                    order.get("receiptsPrice") + "", notifyUrl,
+                                    orderType, locktimes);
+                            if (map.get("prepayPack").toString()
+                                    .equals("prepay_id=")) {
+                                return Util.resultMap(configCode.code_1084,
+                                        null);
+                            }
+                        } else {
+                            return Util.resultMap(configCode.code_1083, null);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.error("支付发起异常：" + e);
+        }
+
+        logger.info("orderNO=" + orderNo + "; return=" + JSONObject.fromMap(map).toString());
+
+        return Util.resultMap(configCode.code_1001, map);
+    }
+
+    /**
+     * 调用微信APP接口
+     *
+     * @return
+     */
+    @RequestMapping("/wxAppPay")
+    @ResponseBody
+    public Map<String, Object> wxAppPay(HttpServletRequest request,
+                                        String orderNo) {
+        Map<String, Object> resultMap = new HashMap<String, Object>();
+        if (StringUtil.isEmpty(orderNo)) {
+            resultMap.put("respCode", configCode.code_1029);
+            resultMap.put("respMsg", configCode.codeDesc(configCode.code_1029));
+        } else {
+            Map<String, Object> order = orderService
+                    .queryOrderByOrderNo(orderNo);
+            if (order == null) {
+                resultMap.put("respCode", configCode.code_1071);
+                resultMap.put("respMsg",
+                        configCode.codeDesc(configCode.code_1071));
+            } else if (Integer.valueOf(order.get("state").toString()) == 0) {
+                return Util.resultMap(configCode.code_1111, null);
+            } else if (Integer.valueOf(order.get("paymentStatus").toString()) == 2
+                    || Integer.valueOf(order.get("paymentStatus").toString()) == 5) {
+                return Util.resultMap(configCode.code_1024, null);
+            }
+
+            if (Integer.valueOf(order.get("paymentStatus").toString()) == 3) {
+                return Util.resultMap(configCode.code_1033, null);
+            } else if (Integer.valueOf(order.get("paymentStatus").toString()) == 8) {
+                return Util.resultMap(configCode.code_1034, null);
+            } else if (Integer.valueOf(order.get("paymentStatus").toString()) == 4) {
+                return Util.resultMap(configCode.code_1027, null);
+            } else if (Integer.valueOf(order.get("paymentStatus").toString()) == 6) {
+                return Util.resultMap(configCode.code_1026, null);
+            } else if (Integer.valueOf(order.get("paymentStatus").toString()) == 1) {
+                Integer orderType = Integer.valueOf(order.get("orderType")
+                        .toString());
+                if (orderType == 4 || orderType == 5 || orderType == 7
+                        || orderType == 9) {
+                    Integer count = doctorOrderDao
+                            .checkNoFinishOrderByPatientId(
+                                    order.get("patientId").toString(), order
+                                            .get("doctorId").toString(),
+                                    orderType);
+                    if (count > 0) {
+                        return Util.resultMap(configCode.code_1072, null);
+                    }
+                    Map<String, Object> dayMap = doctorOrderDao
+                            .getDoctorOrderDayCount(order.get("doctorId")
+                                    .toString(), orderType);
+
+                    Map<String, Object> docMap = doctorDao.queryDocotrById(
+                            order.get("doctorId").toString(),
+                            order.get("memberId").toString());
+                    if (docMap == null) {
+                        return Util.resultMap(configCode.code_1032, null);
+                    }
+                    Integer dayOrderCount = 0;
+
+                    if (dayMap != null) {
+                        dayOrderCount = Integer.valueOf(dayMap.get(
+                                "dayOrderCount").toString());
+                    }
+                    Integer isOnlineTwGh = Integer.valueOf(docMap.get(
+                            "isOnlineTwGh").toString());
+                    Integer isOnlinePhoneGh = Integer.valueOf(docMap.get(
+                            "isOnlinePhoneGh").toString());
+                    Integer isOnlineTwZx = Integer.valueOf(docMap.get(
+                            "isOnlineTwZx").toString());
+                    Integer isOnlinePhoneZx = Integer.valueOf(docMap.get(
+                            "isOnlinePhoneZx").toString());
+                    if (orderType == 4 || orderType == 5) {
+                        if (isOnlineTwGh == 0) {
+                            return Util.resultMap(configCode.code_1057, null);
+                        } else {
+                            if (!StringUtil.isEmpty(docMap
+                                    .get("acceptTwOrderCount"))) {
+                                Integer acceptTwOrderCount = Integer
+                                        .valueOf(docMap.get(
+                                                "acceptTwOrderCount")
+                                                .toString());
+                                if (dayOrderCount - acceptTwOrderCount >= 0) {
+                                    return Util.resultMap(configCode.code_1116,
+                                            null);
+                                }
+                            }
+                        }
+                    } else if (orderType == 6) {
+                        if (isOnlineTwZx == 0) {
+                            return Util.resultMap(configCode.code_1054, null);
+                        } else {
+                            if (!StringUtil.isEmpty(docMap
+                                    .get("acceptTwZxOrderCount"))) {
+                                Integer acceptTwZxOrderCount = Integer
+                                        .valueOf(docMap.get(
+                                                "acceptTwZxOrderCount")
+                                                .toString());
+                                if (dayOrderCount - acceptTwZxOrderCount >= 0) {
+                                    return Util.resultMap(configCode.code_1116,
+                                            null);
+                                }
+                            }
+                        }
+                    } else if (orderType == 7 || orderType == 9) {
+                        if (isOnlinePhoneGh == 0) {
+                            return Util.resultMap(configCode.code_1055, null);
+                        } else {
+                            if (!StringUtil.isEmpty(docMap
+                                    .get("acceptPhoneOrderCount"))) {
+                                Integer acceptPhoneOrderCount = Integer
+                                        .valueOf(docMap.get(
+                                                "acceptPhoneOrderCount")
+                                                .toString());
+                                if (dayOrderCount - acceptPhoneOrderCount >= 0) {
+                                    return Util.resultMap(configCode.code_1116,
+                                            null);
+                                }
+                            }
+                        }
+                    } else if (orderType == 8) {
+                        if (isOnlinePhoneZx == 0) {
+                            return Util.resultMap(configCode.code_1056, null);
+                        } else {
+                            if (!StringUtil.isEmpty(docMap
+                                    .get("acceptPhoneZxOrderCount"))) {
+                                Integer acceptPhoneZxOrderCount = Integer
+                                        .valueOf(docMap.get(
+                                                "acceptPhoneZxOrderCount")
+                                                .toString());
+                                if (dayOrderCount - acceptPhoneZxOrderCount >= 0) {
+                                    return Util.resultMap(configCode.code_1116,
+                                            null);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Map<String, Object> recordOrder = orderService
+                        .queryRecordOrderByMainOrderNo(orderNo);
+
+                if (null != recordOrder
+                        && Integer.valueOf(recordOrder.get("state").toString()) != 1) {
+                    return Util.resultMap(configCode.code_1105, null);
+                }
+                Map<String, Object> yfMap = getPositage(order);
+                if (Integer.valueOf(yfMap.get("respCode").toString()) != 1001) {
+                    return yfMap;
+                }
+                // order.setReceiptsPrice(Double.valueOf(yfMap.get("data").toString()));
+                // order.setReceiptsPrice(0.01);
+                SortedMap<Object, Object> parameters = WxAppPayUtil.sendPay(
+                        orderNo, request,
+                        order.get("receiptsPrice").toString(), false, 30);
+                if (parameters == null || parameters.containsKey("return_msg")) {
+                    resultMap.put("respCode", configCode.code_1097);
+                    resultMap.put("respMsg", parameters.get("return_msg"));
+                } else {
+                    resultMap.put("respCode", configCode.code_1001);
+                    resultMap.put("respMsg",
+                            configCode.codeDesc(configCode.code_1001));
+                    resultMap.put("payInfo", parameters);
+                }
+            } else {
+                resultMap.put("respCode", configCode.code_1083);
+                resultMap.put("respMsg",
+                        configCode.codeDesc(configCode.code_1083));
+            }
+        }
+        return resultMap;
+    }
+
+    private Map<String, Object> getPositage(Map<String, Object> order) {
+        Double payPrice = StringUtil.isEmpty(order.get("receiptsPrice")) ? 0.0
+                : Double.valueOf(order.get("receiptsPrice").toString());
+        if (Integer.valueOf(order.get("orderType").toString()) == 1) {
+            GoodsOrderDetail goodsOrderDetail = new GoodsOrderDetail();
+            goodsOrderDetail.setOrderNo(order.get("orderNo").toString());
+            List<GoodsOrderDetail> goodsOrderDetails = wxPayService
+                    .query(goodsOrderDetail);
+            List<String> goodsId = new ArrayList<String>();
+
+            Double originalTotal = 0.0;
+
+            Map<String, Object> platformActivity = new HashMap<String, Object>();
+
+            for (GoodsOrderDetail detail : goodsOrderDetails) {
+                Map<String, Object> goods = goodsShopCartDao
+                        .queryGoodsByGoodsIdAndPriceNumId(detail.getGoodsId(),
+                                detail.getGoodsPriceNumId(), null);
+                if (null == goods || StringUtils.isEmpty(goods.get("id"))) {
+                    return Util.resultMap(configCode.code_1067, null);
+                }
+
+                if (Double.parseDouble(goods.get("price").toString()) != detail
+                        .getGoodsOriginalPrice()) {
+                    return Util.resultMap(configCode.code_1082, null);
+                }
+
+                Double goodsOriginalTotal = detail.getGoodsOriginalPrice()
+                        * detail.getGoodsNum();
+
+                Double goodsPrice = detail.getGoodsOriginalPrice()
+                        * detail.getGoodsNum();
+
+                List<Map<String, Object>> activitys = goodsDao
+                        .queryActivity(goods.get("id").toString());
+
+                for (Map<String, Object> activity : activitys) {
+                    List<Map<String, Object>> activityDetails = goodsDao
+                            .queryActivityDetail(activity.get("id").toString(),
+                                    Integer.parseInt(activity.get("type")
+                                            .toString()));
+                    if (activity.get("type").toString().equals("1")) {
+
+                        Integer buyCounted = goodsOrderDao.queryBuyConnt(order
+                                        .get("memberId").toString(), activity.get("id")
+                                        .toString(),
+                                goods.get("priceNumId").toString(),
+                                order.get("orderNo").toString());
+                        if (buyCounted >= Integer.parseInt(activity.get(
+                                "activityNum").toString())
+                                || detail.getGoodsNum() > Integer
+                                .parseInt(activity.get("activityNum")
+                                        .toString())) {
+                            return Util.resultMap(configCode.code_1079, null);
+                        }
+                        for (Map<String, Object> activityDetail : activityDetails) {
+                            if (Util.multiply(
+                                    detail.getGoodsOriginalPrice() + "",
+                                    detail.getGoodsNum() + "").doubleValue() >= Double
+                                    .parseDouble(activityDetail.get(
+                                            "activityPrice").toString())) {
+                                if (activity.get("activityType").toString()
+                                        .equals("1")) {
+                                    goodsPrice = Util.multiply(
+                                            goodsOriginalTotal + "",
+                                            activityDetail.get("activityFold")
+                                                    .toString()).doubleValue();
+                                } else if (activity.get("activityType")
+                                        .toString().equals("2")) {
+                                    goodsPrice = Util.subtract(
+                                            goodsOriginalTotal + "",
+                                            activityDetail.get("activityFold")
+                                                    .toString()).doubleValue();
+                                }
+                                break;
+                            }
+                        }
+
+                    } else {
+                        if (null != platformActivity.get(activity.get("id")
+                                .toString())) {
+                            @SuppressWarnings("unchecked")
+                            Map<String, Object> activityDetail = (Map<String, Object>) platformActivity
+                                    .get("id");
+                            activityDetail.put("price", Util.add(
+                                    platformActivity.get("price").toString(),
+                                    goodsPrice + ""));
+                            activityDetail.put("goodsOriginalTotal", Util.add(
+                                    platformActivity.get("goodsOriginalTotal")
+                                            .toString(), goodsPrice + ""));
+                        } else {
+                            Map<String, Object> activityDetail = new HashMap<String, Object>();
+                            activityDetail.put("price", goodsPrice);
+                            activityDetail.put("activityType",
+                                    activity.get("activityType").toString());
+                            activityDetail.put("goodsOriginalTotal",
+                                    goodsOriginalTotal);
+                            activityDetail.put("activityDetail",
+                                    activityDetails);
+                            platformActivity.put(activity.get("id").toString(),
+                                    activityDetail);
+
+                        }
+                    }
+
+                }
+                goodsId.add(detail.getGoodsId());
+                originalTotal = Util.add(originalTotal + "", goodsPrice + "");
+
+            }
+
+            for (Map.Entry<String, Object> entry : platformActivity.entrySet()) {
+                // String key = entry.getKey().toString();
+                @SuppressWarnings("unchecked")
+                Map<String, Object> activityDetail = (Map<String, Object>) entry
+                        .getValue();
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> activityDetails = (List<Map<String, Object>>) activityDetail
+                        .get("activityDetail");
+                for (Map<String, Object> activity : activityDetails) {
+                    if (Double.parseDouble(activityDetail.get(
+                            "goodsOriginalTotal").toString()) >= Double
+                            .parseDouble(activity.get("activityPrice")
+                                    .toString())) {
+                        if (activityDetail.get("activityType").toString()
+                                .equals("1")) {
+                            System.out.println(Double.parseDouble(activity.get(
+                                    "activityFold").toString()) / 10);
+                            originalTotal = originalTotal
+                                    - Util.subtract(
+                                    activityDetail.get("price")
+                                            .toString(),
+                                    Util.multiply(
+                                            activityDetail.get("price")
+                                                    .toString(),
+                                            Double.parseDouble(activity
+                                                    .get("activityFold")
+                                                    .toString())
+                                                    / 10 + "")
+                                            .toString()).doubleValue();
+                        } else if (activityDetail.get("activityType")
+                                .toString().equals("2")) {
+                            originalTotal = originalTotal
+                                    - Util.subtract(
+                                    activityDetail.get("price")
+                                            .toString(),
+                                    Util.subtract(
+                                            activityDetail.get("price")
+                                                    .toString(),
+                                            activity.get("activityFold")
+                                                    .toString())
+                                            .toString()).doubleValue();
+                        }
+                    }
+                }
+            }
+            Double postage = StringUtil.isEmpty(order.get("postage")) ? 0
+                    : Double.valueOf(order.get("postage").toString());
+            if (!Util.isEquals(originalTotal, payPrice - postage)) {
+                return Util.resultMap(configCode.code_1082, null);
+            }
+
+            /*
+             * String cityId=goodsDao.queryCityIdByCity(order.getCity()); String
+             * postage
+             * =goodsDao.queryPostageByGoodsIds(cityId,order.getOrderNo());
+             * payPrice =
+             * Util.add(order.getReceiptsPrice()+"",postage).doubleValue();
+             */
+        }
+        return Util.resultMap(configCode.code_1001, payPrice);
+    }
+
+    /**
+     * 发起支付公共方法
+     *
+     * @param orderNo
+     * @param openId
+     * @param orderPrice
+     * @return
+     */
+    private Map<String, Object> getFinalPackage(String orderNo, String openId,
+                                                String orderPrice, String notifyUrl, Integer ordertypecode,
+                                                Integer lockTime) {
+        if (StringUtil.isEmpty(openId)) {
+            openId = "";
+        }
+        logger.info(openId + "0000000000000000有没有");
+        jsApiBean = new WXPayBean();
+        jsApiBean.setWxid(Util.getUUID());
+        jsApiBean.setDeviceInfo("");
+        jsApiBean.setNonceStr(WeiXinConfig.number32());
+        jsApiBean.setBody(body);
+        jsApiBean.setAttach("attach");
+        jsApiBean.setOutTradeNo(orderNo);
+        logger.info("orderPrice:::::::::::"
+                + Integer.parseInt(TenpayUtil.getMoney(orderPrice.toString())));
+        jsApiBean.setTotalFee(Integer.parseInt(TenpayUtil.getMoney(orderPrice
+                .toString())));
+        jsApiBean.setSpbillCreateIp(WeiXinConfig.SPBILL_CREATE_IP);
+        jsApiBean.setTimeStart((int) (System.currentTimeMillis() / 1000) + "");
+        jsApiBean.setNotifyUrl(notifyUrl);
+        jsApiBean.setAppId(WeiXinConfig.appId);
+        jsApiBean.setMchId(WeiXinConfig.mch_id);
+        jsApiBean.setTradeType(WeiXinConfig.trade_type);
+        jsApiBean.setOrdertypecode(ordertypecode);
+        logger.info(openId + "weixin---------------------openid");
+        jsApiBean.setOpenid(openId);
+        jsApiBean.setOperdate((int) (System.currentTimeMillis() / 1000));
+        jsApiBean.setSign("-1");
+        jsApiBean.setLockTime(lockTime);
+        return wxPayService.getPackage(openId, jsApiBean);
+    }
+
+    /**
+     * 元转换成分
+     *
+     * @param money
+     * @return
+     */
+    public static String getMoney(String amount) {
+        if (amount == null) {
+            return "";
+        } // 金额转化为分为单位
+        String currency = amount.replaceAll("\\$|\\￥|\\,", ""); // 处理包含, ￥
+        // 或者$的金额
+        int index = currency.indexOf(".");
+        int length = currency.length();
+        Long amLong = 0l;
+        if (index == -1) {
+            amLong = Long.valueOf(currency + "00");
+        } else if (length - index >= 3) {
+            amLong = Long.valueOf((currency.substring(0, index + 3)).replace(
+                    ".", ""));
+        } else if (length - index == 2) {
+            amLong = Long.valueOf((currency.substring(0, index + 2)).replace(
+                    ".", "") + 0);
+        } else {
+            amLong = Long.valueOf((currency.substring(0, index + 1)).replace(
+                    ".", "") + "00");
+        }
+        return amLong.toString();
+    }
+
+}

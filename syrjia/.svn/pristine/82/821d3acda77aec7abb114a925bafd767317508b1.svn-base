@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+	<link rel="stylesheet" type="text/css" href="../../css/style.css">
+	<title>服药禁忌</title>
+</head>
+<body>
+	<div class="disease_img careful_img">
+		<img src="../../img/disease_img.png">
+		<span></span>
+		<p>服药禁忌</p>
+	</div>
+	<div class="user_content careful_content">
+		<p>1、服用中药期间，避免食用油腻、辛辣食物，少食肉类、豆类、生冷、不易消化的食物；</p>
+		<p>2、不与牛奶、茶水等饮料同服；</p>
+		<p>3、如有同时服用西药的情况，则彼此至少间隔40分钟以上再服用；</p>
+		<p>4、不宜在服药时期服感冒药；</p>
+		<p>5、按照用法用量服用，孕产妇、幼儿应在医师指导下服用；</p>
+		<p>6、对本品过敏者禁用，过敏体质者慎用；</p>
+		<p>7、药品性状发生改变时禁止服用；</p>
+		<p>8、请将此药品放在儿童不能接触的地方，儿童必需在成人监护下服用；</p>
+		<p>9、如正在服用其他药品，使用本品前请咨询医师或药师。</p>
+	</div>
+</body>
+</html>
