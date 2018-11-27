@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="nowInquiryApp" ng-controller="nowInquiryCon">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+	<link rel="stylesheet" type="text/css" href="../../css/mui.min.css">
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+<script src="../../js/mui.min.js"></script>
+<script type="text/javascript" src="../../js/jquery.min.js"></script>
+<script src="../../js/swiper.min.js"></script>
+<script type="text/javascript" src="../../js/angular.min.js"></script>
+<script src="../../js/angular-sanitize.min.js"></script>
+<script src="../../js/util.js"></script>
+<title>当前问诊</title>
+<style type="text/css">
+.mui-pull-caption{
+	width: 100%;
+}
+.commo_none span{
+	background: #f6f5f3;
+}
+</style>
+</head>
+<body>
+	<div class="now_main">
+		<div id="pullrefresh" class="mui-content mui-scroll-wrapper">
+				<div class="mui-scroll">
+		<div class="now_list" ng-repeat="os in resultlist" ng-cloak ng-click="toIm(os.doctorId,os.patientId)">
+			<div class="now_status">
+				<h3 ng-bind="os.wzState"></h3>
+				<p><span ng-bind="os.hzname | limitTo:5"></span><span ng-if="(os.orderType==4||os.orderType==7||os.orderType==22)&&os.sytimes&&os.paymentStatus==2">剩余时间：{{os.sytimes}}</span></p>
+			</div>
+			<div ng-if="os.wzType==6||os.wzType==7||os.wzType==3||os.wzType==4">
+				<div class="inquiry_top now_top">
+					<div class="inquiry_photo">
+						<img ng-src="{{os.docUrl}}">
+						<!-- <i>回复消息数量</i> -->
+					</div>
+					<div class="inquiry_doctor">
+						<h3>{{os.docName}}<span ng-bind="os.docPos"></span><i class="now_already">{{1==os.lastPeople?'待回复':'已回复'}}</i></h3>
+						<p ng-bind="os.HosName"></p>
+					</div>
+				</div>
+				<div class="now_symptom" ng-if="null!=os.lastMsg">
+					<p>{{os.lastMsg | limitTo:15}}{{os.lastMsg.length>15?'...':''}}</p>
+					<span ng-bind="os.lastTime"></span>
+				</div>
+			</div>
+			<div ng-if="os.wzType!=6&&os.wzType!=7&&os.wzType!=3&&os.wzType!=4">
+				<div class="now_bot">
+				<div class="inquiry_top now_top">
+					<div class="inquiry_photo">
+						<img ng-src="{{os.docUrl}}">
+					</div>
+					<div class="inquiry_doctor">
+						<h3>{{os.docName}}<span ng-bind="os.docPos"></span></h3>
+						<p ng-bind="os.HosName"></p>
+					</div>
+				</div>
+				<p class="now_label">{{os.lastMsg | limitTo:15}}{{os.lastMsg.length>15?'...':''}}</p>
+				<a class="now_btn" ng-if="os.wzType==2" ng-click="pay($event,os.recordOrderNo,os.mainOrderNo)">点击付款</a>
+				<a class="now_btn" ng-if="os.wzType==5" ng-click="logistics($event,os.recordOrderNo)">查看物流</a>
+				<a class="now_btn" ng-if="os.wzType==1" ng-click="evaluate($event,os.orderNo)">点击评价</a>
+			</div>
+			</div>
+		</div>
+		</div>
+	</div>
+	<p class="notAvailable" style="display: none">暂无订单</p>
+	<div class="now_history">
+		<a ng-click="linkhistory()">查看就诊历史 </a>
+	</div>
+	<script type="text/javascript" src="../../js/hospital/now_inquiry.js"></script>
+	<script type="text/javascript" src="../../js/foot.js"></script>
+</body>
+</html>

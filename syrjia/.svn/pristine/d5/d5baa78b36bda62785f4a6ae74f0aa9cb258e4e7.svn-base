@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="searchDoctorApp" ng-controller="searchDoctorCon">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=no">
+<link rel="stylesheet" type="text/css" href="../../css/mui.min.css">
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+<script src="../../js/mui.min.js"></script>
+<script type="text/javascript" src="../../js/jquery.min.js"></script>
+<script type="text/javascript" src="../../js/angular.min.js"></script>
+<script src="../../js/angular-sanitize.min.js"></script>
+<script src="../../js/angular-cookies.min.js"></script>
+<script src="../../js/util.js"></script>
+<title ng-bind="Toptitle"></title>
+</head>
+<body>
+	<div class="search_top">
+		<div class="search_import search_bar">
+			<!-- <form action="javascript:return true;" class="doctor_search">
+				<input id="searchName" type="search" autofocus="autofocus" placeholder="搜索病症、医生、科室" ng-model="searchDoctors"
+					ng-change="myFunc();"  ng-keyup="search($event)">
+					<span></span>
+			</form> -->
+			<form action="javascript:return true;">
+				<span></span>
+				<input id="searchName" type="search" autofocus="autofocus" placeholder="搜索病症、医生、科室" ng-model="searchDoctors"
+					ng-change="myFunc();"  ng-keyup="search($event)">
+			</form>
+		</div>
+		<a class="mui-action-back">取消</a>
+	</div>
+	<div class="search_con">
+		<h3 ng-if="null!=keySearch"><span class="left_icon"></span>历史搜索</h3>
+		<ul style="max-height: 7.875rem;overflow: hidden;">
+			<li style="height: 1.875rem;overflow: hidden;" ng-repeat="key in keySearch" ng-cloak ng-bind="key.name" ng-click="checkSearch(key.name,'')"></li>
+		</ul>
+		<h3 ng-if="null!=commonSearchs"><span class="left_icon"></span>常用搜索</h3>
+		<ul>
+			<li ng-repeat="key in commonSearchs" ng-cloak ng-bind="key.illClassName" ng-click="checkSearch(key.illClassName,key.illClassId)"></li>
+		</ul>
+		<a class="search_delete" ng-if="null!=keySearch" ng-cloak ng-click="deleteSearch()"></a>
+	</div>
+	<ul class="search_keyword"   style="display: none;">
+		<li ng-repeat="list in lists" ng-bind="list.name" ng-cloak ng-click="checkSearch(list.name)"></li>
+	</ul>
+	<script type="text/javascript" src="../../js/hospital/search.js"></script>
+	<script type="text/javascript" src="../../js/foot.js"></script>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="doctorSearchApp" ng-controller="doctorSearchCon">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=no">
+<link rel="stylesheet" type="text/css" href="../../css/mui.min.css">
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+<link rel="stylesheet" href="../../css/ydui.css" />
+<script src="../../js/mui.min.js"></script>
+<script type="text/javascript" src="../../js/jquery.min.js"></script>
+<script type="text/javascript" src="../../js/angular.min.js"></script>
+<script src="../../js/angular-sanitize.min.js"></script>
+<script src="../../js/util.js"></script>
+<title>找医生</title>
+</head>
+<style type="text/css">
+.mask-black {
+	display: none !important;
+}
+
+.m-cityselect {
+	top: 111px;
+	height: 85%;
+}
+
+.cityselect-title {
+	display: none !important;
+}
+
+.cityselect-content {
+	padding-top: 40px !important;
+}
+
+.disease_screen li input {
+	height: 2.78rem;
+}
+.mui-pull-caption{
+	width: 100%;
+}
+.commo_none span{
+	background: #f6f5f3;
+}
+
+</style>
+<body class="notice_back" ng-cloak>
+	<div class="doctor_con">
+		<div class="search_top disease_top">
+			<div class="search_import">
+				<input type="text" ng-click="searchClick()" readonly="readonly"
+					id="search" class="ng-pristine ng-valid ng-touched">
+			</div>
+		</div>
+		<ul class="disease_screen doctor_condition">
+			<li id="J_Address" class="cell-input" class="doctor_address"><span>
+					<input placeholder="地区" readonly> </span></li>
+			<li><span>科室</span>
+				<div class="doctor_layer" style="display: none;z-index: 999;">
+					<div class="doctor_condfind">
+						<p class="doctor_checkon"
+							ng-click="checkSearch($event,-1,'depart','qbks')" id="qbks">
+							<i>全部科室</i>
+						</p>
+						<p ng-repeat="depart in departs"
+							ng-click="checkSearch($event,0,'depart',depart.departId)"
+							id="{{depart.departId}}" _name="{{depart.departName}}">
+							<i>{{depart.departName}}</i>
+						</p>
+					</div>
+				</div>
+			</li>
+			<li><span>职称</span>
+				<div class="doctor_layer" style="display: none;z-index: 999;">
+					<div class="doctor_condfind">
+						<p class="doctor_checkon"
+							ng-click="checkSearch($event,-1,'position','bxzc')" id="bxzc">
+							<i>不限</i>
+						</p>
+						<p ng-repeat="position in positions"
+							ng-click="checkSearch($event,0,'position',position.id)"
+							id="{{position.id}}" _name="{{position.name}}">
+							<i>{{position.name}}</i>
+						</p>
+					</div>
+				</div>
+			</li>
+			<li><span>综合排序</span>
+				<div class="doctor_layer" style="display: none;z-index: 999;">
+					<div class="doctor_condfind">
+						<p class="doctor_checkon"
+							ng-click="checkSearch($event,-1,'sort','bxSort')" id="bxSort">
+							<i>默认</i>
+						</p>
+						<p ng-click="checkSearch($event,0,'sort','hplSort')" id="hplSort">
+							<i>好评率</i>
+						</p>
+						<p ng-click="checkSearch($event,0,'sort','jzlSort')" id="jzlSort">
+							<i>接诊量</i>
+						</p>
+						<p ng-click="checkSearch($event,0,'sort','wzfHighSort')"
+							id="wzfHighSort">
+							<i>问诊费由高到低</i>
+						</p>
+						<p ng-click="checkSearch($event,0,'sort','wzfLowSort')"
+							id="wzfLowSort">
+							<i>问诊费由低到高</i>
+						</p>
+					</div>
+				</div>
+			</li>
+		</ul>
+		<ul class="clinic_list disease_list">
+			<div id="pullrefresh" class="mui-content mui-scroll-wrapper"
+				style="margin-top: 7rem;">
+				<div class="mui-scroll">
+					<li ng-repeat="doctor in doctors"
+						ng-click="doctorDetail($event,doctor.doctorId,doctor.docName)">
+						<div class="clinic_main">
+							<!-- <div class="clinic_doctor_img"> -->
+								<img  class="clinic_doctor_img" ng-src="{{doctor.docUrl}}">
+							<!-- </div> -->
+							<div class="clinic_docright">
+								<h3>
+									<span>{{doctor.docName | limitTo:4}}{{doctor.docName.length>4?'...':''}}<span>{{doctor.positionName}}</span>
+									</span> <i ng-bind="doctor.moneys | splitMoney" compile-html></i>
+								</h3>
+								<p class="clinic_hospital" ng-bind="doctor.infirmaryName"></p>
+								<ul class="clinic_score"
+									ng-bind="doctor.illClassNames | splitIllClass" compile-html>
+								</ul>
+								<p class="clinic_statistics">
+									<span ng-bind="doctor.payCount"></span>人付款<i></i><span
+										ng-bind="doctor.evaCount"></span>人评价<i></i><span>{{doctor.goodEvaRate}}%</span>好评
+								</p>
+							</div>
+						</div>
+					</li>
+				</div>
+			</div>
+		</ul>
+	</div>
+	<script type="text/javascript">
+		$(function() {
+
+			$(".disease_screen li").on(
+					"click",
+					function() {
+						$(this).siblings("li").find(".doctor_layer").hide();
+						$(this).find(".doctor_layer").show();
+						var scrollH = $(".doctor_con").scrollTop()
+								- ($(".doctor_con").scrollTop()) * 2 + 6;
+						$(this).addClass("doctor_checked").siblings("li")
+								.removeClass("doctor_checked");
+						$(this).find(".doctor_layer").addClass("doctor_show")
+								.css("webkitTransform",
+										"translate(0px," + scrollH + "px)");
+						$(this).siblings("li").find(".doctor_layer")
+								.removeClass("doctor_show").css(
+										"webkitTransform",
+										"translate(0px,100%)");
+						$(".m-cityselect").removeClass("brouce-in").css(
+								"webkitTransform", "translate(0px,100%)");
+						$(".doctor_con").css("overflow", "hidden");
+
+					});
+
+			$("#J_Address").on(
+					"click",
+					function(event) {
+						event.stopPropagation();
+						var scrollH = $(".doctor_con").scrollTop()
+								- ($(".doctor_con").scrollTop()) * 2 + 6;
+						$(".m-cityselect").addClass("brouce-in").css(
+								"webkitTransform",
+								"translate(0px," + scrollH + "px)");
+						$(".doctor_con").css("overflow", "hidden");
+					});
+
+			$(".doctor_con").scroll(
+					function() {
+						var layerH = $(window).height()
+								- $(".disease_top").height()
+								- $(".disease_screen").height()
+								+ $(".doctor_con").scrollTop() - 30;
+						$(".doctor_layer").height(layerH);
+						$(".m-cityselect").height(layerH);
+					});
+			$(".doctor_layer").height(
+					$(window).height() - $(".disease_top").height()
+							- $(".disease_screen").height());
+			$(".doctor_con").height($(window).height());
+			
+			$(".doctor_con").on("click",".doctor_layer",function(){
+				$(this).hide();
+			});
+
+		});
+	</script>
+	<script type="text/javascript" src="../../js/ydui.citys.js"></script>
+	<script type="text/javascript" src="../../js/ydui.js?v=1"></script>
+	<script type="text/javascript"
+		src="../../js/hospital/doctor_search.js"></script>
+	<script type="text/javascript" src="../../js/foot.js"></script>
+		
+</body>
+</html>

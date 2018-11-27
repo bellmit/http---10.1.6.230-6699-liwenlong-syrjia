@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="doctorDetailApp" ng-controller="doctorDetailCon"
+	ng-cloak>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=no">
+<link rel="stylesheet" type="text/css" href="../../css/mui.min.css">
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+<link rel="stylesheet" href="../../css/swiper.css">
+<script src="../../js/mui.min.js"></script>
+<script type="text/javascript" src="../../js/jquery.min.js"></script>
+<script type="text/javascript" src="../../js/angular.min.js"></script>
+<script src="../../js/angular-sanitize.min.js"></script>
+<script src="../../js/util.js"></script>
+<script src="https://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
+<title>医生主页</title>
+<style type="text/css">
+.mui-pull-caption.mui-pull-caption-nomore {
+	width: 100%;
+}
+
+.commodity_star li {
+	background: url(../../img/star_checked.png) no-repeat center;
+	background-size: 0.75rem 0.75rem;
+}
+
+.commodity_star .commodity_unchecked {
+	background: url(../../img/star_unchecked.png) no-repeat center;
+	background-size: 0.75rem 0.75rem;
+}
+
+.w {
+	width: 100% !important;
+}
+
+.commodity_star li {
+	background: url(img/star_checked.png) no-repeat center;
+	background-size: 0.75rem 0.75rem;
+}
+
+.commodity_star .commodity_unchecked {
+	background: url(img/star_unchecked.png) no-repeat center;
+	background-size: 0.75rem 0.75rem;
+}
+/*修改线上调理*/
+.doctor_rightcon {
+	width: 50%;
+}
+
+.doctor_online {
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	width: 100%;
+	padding: 0.82rem;
+}
+
+.doctor_online li {
+	border: 1px solid #c99a6b;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	padding: 1.1rem 0.625rem;
+	margin-bottom: 0.625rem;
+	border-radius: 0.35rem;
+	position: relative;
+	display: -webkit-flex;
+	display: flex;
+	align-items: center;
+}
+
+.doctor_online li:last-child {
+	border: 1px solid #c99a6b;
+	margin-bottom: 0;
+}
+
+.doctor_online li img {
+	width: 3.125rem;
+	height: 3.125rem;
+	margin-right: 0.8rem;
+	vertical-align: middle;
+}
+
+.doctor_nobtn .doctor_rightcon h3 {
+	justify-content: flex-start;
+	color: #32333c;
+	font-size: 0.88rem;
+}
+
+.doctor_rightcon h3 {
+	justify-content: flex-start;
+	color: #32333c;
+	font-size: 0.88rem;
+}
+
+.doctor_rightcon h3 span {
+	margin-left: 0.82rem;
+	color: #da0428;
+}
+
+.doctor_nobtn .doctor_rightcon h3 span {
+	color: #da0428;
+}
+
+.handle {
+	position: absolute;
+	text-align: center;
+	top: 50%;
+	right: 0.90rem;
+	margin-top: -1.6rem;
+}
+
+.handle p {
+	margin-bottom: 0.38rem;
+	color: #da0428;
+	font-size: 0.8rem;
+}
+
+.buy_online {
+	display: inline-block;
+	width: 4.6875rem;
+	height: 1.5625rem;
+	line-height: 1.5625rem;
+	font-size: 0.80rem;
+	text-align: center;
+	letter-spacing: 1px;
+	text-align: center;
+	background: #da0428;
+	color: #fff;
+	border-radius: 0.3rem;
+	cursor: pointer;
+}
+
+@media only screen and (max-width: 320px) {
+	.doctor_rightcon {
+		width: 49%;
+	}
+	.doctor_online li {
+		padding: 0.7rem 0.625rem;
+	}
+	.doctor_online li img {
+		margin-right: 0.6rem;
+	}
+}
+.otherstate .buy_online{
+	background:#c8c8c8;
+}
+.otherstate .handle p{
+	color:#eda4a9;
+}
+</style>
+</head>
+<body>
+	<div class="doctor_top">
+		<div class="doctor_operation">
+			<span ng-click="keep()">{{null!=keepId?'已关注':'+ 关注'}}</span> <span
+				onclick="share()" class="doctor_share">分享</span>
+		</div>
+		<img ng-src="{{null==docUrl?'../../img/defaultPhoto.png':docUrl}}">
+		<h3 ng-bind="docName"></h3>
+		<p>
+			{{infrimaryName}}<span>{{positionName}}</span>
+		</p>
+		<ul>
+			<li>好评率：{{goodEvaRate}}%</li>
+			<li>接诊：{{buyNum}}</li>
+			<li>评价：{{evaCnt}}</li>
+			<li>关注：{{keepCount}}</li>
+			<li>鲜花：{{xhCount}}</li>
+			<li>锦旗：{{jqCount}}</li>
+		</ul>
+	</div>
+	<div class="doctor_check">
+		<a ng-click="tabChange(1)" ng-class="{1:'doctor_active',2:''}[docTab]"><span>医生详情</span>
+		</a> <a ng-click="tabChange(2);"
+			ng-class="{1:'',2:'doctor_active'}[docTab]"><span>医生文章<!-- <i></i> -->
+		</span> </a>
+	</div>
+	<div style="height:0.3rem;background:#f6f5f3;width:100%;"
+		ng-if="docTab==2"></div>
+	<div class="swiper-container" id="tabs-container">
+		<div class="swiper-wrapper">
+			<div class="swiper-slide" ng-show="docTab==1">
+				<div class="doctor_goodat" ng-if="illClassNames!=null">
+					<h3 class="doctor_title">
+						<span class="left_icon"></span>专业擅长
+					</h3>
+					<ul class="doctor_good_list"
+						ng-bind="illClassNames | splitIllClass" compile-html>
+						<!-- <li class="doctor_lookmore"><span>查看更多</span></li> -->
+					</ul>
+				</div>
+				<!-- <div class="doctor_melodyt"
+					ng-class="{0:'doctor_nobtn'}[isAccpetAsk]">
+					<h3 class="doctor_title">
+						<span class="left_icon"></span>线上调理
+					</h3>
+					<div class="article_none"
+						ng-if="isOnlineTwGh==0&&isOnlineTwZx==0&&isOnlinePhoneZx==0&&isOnlinePhoneGh==0"
+						ng-cloak>该医生暂未开启服务</div>
+					<ul class="doctor_online">
+						<li ng-show="isOnlineTwGh==1" ng-click="toBuyDetail(4);"><img
+							src="../../img/registra.png">
+							<div class="doctor_rightcon">
+								<h3>
+									图文调理<span>¥{{fisrtTwGhMoney}}<i>/次</i> </span>
+								</h3>
+								<p>与医生图文、语音交流，获得调理方案。</p>
+							</div>
+						</li>
+						<li ng-show="isOnlineTwZx==1" ng-click="toBuyDetail(6);"><img
+							src="../../img/consult.png">
+							<div class="doctor_rightcon">
+								<h3>
+									图文咨询<span>¥{{twZxMoney}}<i>/{{twZxCount}}次</i> </span>
+								</h3>
+								<p>图文交流，医生为您答疑解惑。</p>
+							</div>
+						</li>
+						<li ng-show="isOnlineTwGh==1" ng-click="toBuyDetail(5);"><img
+							src="../../img/melodyt.png">
+							<div class="doctor_rightcon">
+								<h3>
+									复诊调理<span>¥{{fisrtTwGhMoney}}<i>/次</i> </span>
+								</h3>
+								<p>用图文与医生进行沟通、调理身体</p>
+							</div></li>
+						<li ng-show="isOnlinePhoneGh==1" ng-click="toBuyDetail(7);"><img
+							src="../../img/phone_inquiry.png">
+							<div class="doctor_rightcon">
+								<h3>
+									电话调理({{phoneGhServerTime}}分钟)<span>¥{{fisrtPhoneGhMoney}}<i>/次</i>
+									</span>
+								</h3>
+								<p>与医生电话交流，获得调理方案。</p>
+							</div>
+						</li>
+						<li ng-show="isOnlinePhoneZx==1" ng-click="toBuyDetail(8);"><img
+							src="../../img/doctor_phone.png">
+							<div class="doctor_rightcon">
+								<h3>
+									电话咨询({{phoneZxTime}}分钟)<span>¥{{phoneZxMoney}}<i>/{{phoneZxCount}}次</i>
+									</span>
+								</h3>
+								<p>与医生电话交流，医生为您答疑解惑。</p>
+							</div>
+						</li>
+						<li ng-show="isOnlinePhoneGh==1" ng-click="toBuyDetail(9);"><img
+							src="../../img/later.png">
+							<div class="doctor_rightcon">
+								<h3>
+									电话复诊（挂号）<span>{{fisrtPhoneGhMoney}}<i>/次</i> </span>
+								</h3>
+								<p>通过电话与医生沟通了解病情</p>
+							</div></li>
+					</ul>
+				</div> -->
+
+				<div class="doctor_melodyt"
+					ng-class="{0:'otherstate'}[isAccpetAsk]">
+					<h3 class="doctor_title">
+						<span class="left_icon"></span>线上调理
+					</h3>
+					<div class="article_none"
+						ng-if="isOnlineTwGh==0&&isOnlineTwZx==0&&isOnlinePhoneZx==0&&isOnlinePhoneGh==0"
+						ng-cloak>该医生暂未开启服务</div>
+					<ul class="doctor_online">
+						<li class="doctor_nobtn" ng-show="isOnlineTwGh==1"
+							ng-click="toBuyDetail(4);"><img
+							src="../../img/regulating_ico.png">
+							<div class="doctor_rightcon">
+								<h3>
+									图文调理
+								</h3>
+								<p>与医生图文、语音交流，获得调理方案。</p>
+							</div>
+							<div class="handle">
+	 							<p>¥{{fisrtTwGhMoney}}/次</p>
+	 							<a class="buy_online">点击购买</a>
+	 						</div>
+						</li>
+						<li class="doctor_nobtn" ng-show="isOnlineTwZx==1"
+							ng-click="toBuyDetail(6);"><img
+							src="../../img/consulting_ico.png">
+							<div class="doctor_rightcon">
+								<h3>
+									图文咨询
+								</h3>
+								<p>图文交流，医生为您答疑解惑。</p>
+							</div>
+							<div class="handle">
+	 							<p>¥{{twZxMoney}}/{{twZxCount}}次</p>
+	 							<a class="buy_online">点击购买</a>
+	 						</div>
+						</li>
+						<li ng-show="isOnlinePhoneGh==1" ng-click="toBuyDetail(7);">
+							<img src="../../img/tele_regulating.png">
+							<div class="doctor_rightcon">
+								<h3>
+									电话调理({{phoneGhServerTime}}分钟)
+								</h3>
+								<p>与医生电话交流，获得调理方案。</p>
+							</div>
+							<div class="handle">
+	 							<p>¥{{fisrtPhoneGhMoney}}/次</p>
+	 							<a class="buy_online">点击购买</a>
+	 						</div>
+						</li>
+						<li ng-show="isOnlinePhoneZx==1" ng-click="toBuyDetail(8);"><img
+							src="../../img/tele_counseling.png">
+							<div class="doctor_rightcon">
+								<h3>
+									电话咨询({{phoneZxTime}}分钟)
+								</h3>
+								<p>与医生电话交流，医生为您答疑解惑。</p>
+							</div><div class="handle">
+	 							<p>¥{{phoneZxMoney}}/{{phoneZxCount}}次</p>
+	 							<a class="buy_online">点击购买</a>
+	 						</div></li>
+	 					<li ng-show="isOnlineCf==1" ng-click="toBuyDetail(22);"><img
+							src="../../img/cf_ico.png">
+							<div class="doctor_rightcon">
+								<h3>
+									抄方
+								</h3>
+								<p>上传正规处方进行抄方。</p>
+							</div><div class="handle">
+								<p>&nbsp;</p>
+	 							<a class="buy_online">点击购买</a>
+	 						</div></li>
+					</ul>
+				</div>
+				<div class="doctor_melodyt">
+					<h3 class="doctor_time_title">
+						<span>医生线下坐诊时间</span> <a ng-click="showCalenLayer($event,1);"></a>
+					</h3>
+					<div class="doctor_time_con" ng-click="toLineBelow();">
+						<ul id="Week">
+							<li ng-repeat="w in week">{{w}}</li>
+						</ul>
+						<ul id="date">
+							<li ng-repeat="w in weekday">{{w}}</li>
+						</ul>
+						<ul id="status">
+							<li ng-repeat="zzs in zzStatus">{{zzs.maxHis}}</li>
+						</ul>
+					</div>
+					<div class="doctor_notice" ng-if="doctorNotice!=null">
+						<h3 ng-click="toNotice()">
+							<span>医生公告</span>
+						</h3>
+						<p>{{doctorNotice}}</p>
+					</div>
+				</div>
+				<div class="doctor_melodyt">
+					<h3 class="doctor_title">
+						<span class="left_icon"></span>医生简介
+					</h3>
+					<p class="doctor_intro" ng-if="docAbstract!=null">
+						<span style="display:block;">{{docAbstract}}</span>
+					</p>
+					<a class="doctor_next" id="doctor_more"
+						ng-if="docAbstract!=null&&isShowDocAbstract"><i>查看更多</i><span></span>
+					</a>
+					<div class="article_none" ng-if="null==docAbstract" ng-cloak>
+						暂无简介</div>
+				</div>
+				<div class="doctor_melodyt">
+					<h3 class="doctor_title">
+						<span class="left_icon"></span>评价
+					</h3>
+					<ul class="doctor_evaluate"
+						ng-if="detailEvas!=null&&detailEvas.length>0">
+						<li ng-repeat="docEva in detailEvas">
+							<div class="doctor_evaimg">
+								<img
+									ng-src="{{''==docEva.memberUrl?(docEva.sex=='男'?'../../img/boy.png':'../../img/girl.png'):docEva.memberUrl}}">
+							</div>
+							<div class="doctor_evaright">
+								<div class="doctor_evatop">
+									<div class="doctor_evarightcon">
+										<i>{{docEva.realname | realName}}</i>
+										<ul class="commodity_star">
+											<li></li>
+											<li
+												ng-class="{1:'commodity_unchecked'}[docEva.evaluateLevel]"></li>
+											<li
+												ng-class="{1:'commodity_unchecked',2:'commodity_unchecked'}[docEva.evaluateLevel]"></li>
+											<li
+												ng-class="{1:'commodity_unchecked',2:'commodity_unchecked',3:'commodity_unchecked'}[docEva.evaluateLevel]"></li>
+											<li
+												ng-class="{1:'commodity_unchecked',2:'commodity_unchecked',3:'commodity_unchecked',4:'commodity_unchecked'}[docEva.evaluateLevel]"></li>
+										</ul>
+									</div>
+									<p class="doctor_detail">
+										<i>{{docEva.wzDate}}</i><i ng-bind="docEva.serverName"></i>
+									</p>
+								</div>
+								<h3>{{docEva.evaluate_note}}</h3>
+								<!-- <p ng-if="docEva.diagonsticName!=null">症状描述：{{docEva.diagonsticName}}</p> -->
+							</div>
+						</li>
+					</ul>
+					<a class="doctor_next"
+						ng-if="null!=detailEvas&&detailEvas.length>4"
+						ng-click="seeAllEvas($event);">查看更多</a>
+					<div class="article_none"
+						ng-if="null==detailEvas||detailEvas.length==0" ng-cloak>
+						暂无评价</div>
+				</div>
+			</div>
+			<div class="swiper-slide articleList" style="height: 450px;"
+				ng-show="docTab==2">
+				<div id="pullrefresh" class="mui-content mui-scroll-wrapper"
+					style="background: #fff;">
+					<div class="mui-scroll">
+						<ul class="know_attention">
+							<li class="ng-scope" ng-repeat="knowledge in articles" ng-cloak>
+								<h3 class="know_hot_title ng-binding"
+									ng-click="detail(knowledge.id)" ng-bind="knowledge.title"></h3>
+								<div class="know_hot_main ng-scope"
+									ng-click="detail(knowledge.id)" style="width: 100%;">
+									<div class="know_hot_left know_article_con"
+										ng-class="{false:'w'}[knowledge.videoShowUrl!=null&&knowledge.videoShowUrl!=''&&knowledge.imgUrl!=null&&knowledge.imgUrl!='']">
+										<p compile-html ng-bind="knowledge.content | splitContent"></p>
+										<h3 ng-bind="knowledge.labelNames | splitLabelNames"
+											compile-html></h3>
+									</div>
+									<div class="know_hot_img"
+										ng-if="knowledge.videoShowUrl!=null&&knowledge.videoShowUrl!=''">
+										<img ng-src="{{knowledge.videoShowUrl}}">
+									</div>
+									<div class="know_hot_img"
+										ng-if="knowledge.imgUrl!=null&&knowledge.imgUrl!=''">
+										<img ng-src="{{knowledge.imgUrl}}">
+									</div>
+
+
+								</div> <!-- end ngIf: knowledge.type==4 -->
+								<div class="know_operate hot_operate">
+									<span ng-if="knowledge.collect==2"
+										class="know_collect know_collected"
+										ng-click="collect($event,knowledge.id,knowledge)"><span>{{knowledge.collectNum}}</span>收藏</span>
+									<span ng-if="knowledge.collect==1" class="know_collect "
+										ng-click="collect($event,knowledge.id,knowledge)"><span>{{knowledge.collectNum}}</span>收藏</span>
+									<span ng-if="knowledge.praise==2"
+										class="know_praise know_praised"
+										ng-click="praise($event,knowledge.id,knowledge)"><span>{{knowledge.pointNum}}</span>点赞</span>
+									<span ng-if="knowledge.praise==1" class="know_praise"
+										ng-click="praise($event,knowledge.id,knowledge)"><span>{{knowledge.pointNum}}</span>点赞</span>
+									<span class="know_review" ng-click="detail(knowledge.id)">{{knowledge.plNum}}评论</span>
+									<!-- <span class="know_share" ng-click="share(knowledge.id)"><span></span>{{knowledge.shareNum}}分享</span> -->
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div class="mui-content mui-scroll-wrapper" ng-if="articles==null"
+					style="background: #fff;">
+					<div class="know_circle_con">
+						<img src="../../img/notext.png" class="know_noattention">
+						<p class="know_noarticle">该医生还没有更多文章哦</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="doctor_layer doctor_layerup" ng-show="layerShow==1"
+		ng-click="showCalenLayer($event,0)">
+		<div class="line_date doctor_line">
+			<a class="line_close" ng-click="showCalenLayer($event,0);"></a>
+			<h3></h3>
+			<ul class="line_week">
+				<li ng-repeat="w in week">{{w}}</li>
+			</ul>
+			<ul class="line_day">
+				<!-- 今天的li加class: line_today ; 预约/可预约的li加class: line_order ; 出诊的li加class: line_out ; -->
+				<div ng-repeat="d in dates" ng-bind="d.dayData | splitDate"
+					compile-html></div>
+			</ul>
+		</div>
+	</div>
+
+	<script type="text/javascript" src="../../js/hospital/doctor_detail.js"></script>
+	<script type="text/javascript" src="../../js/foot.js"></script>
+</body>
+</html>

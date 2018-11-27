@@ -1,0 +1,178 @@
+package cn.syrjia.hospital.service;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import cn.syrjia.common.BaseServiceInterface;
+import cn.syrjia.hospital.entity.Department;
+import cn.syrjia.hospital.entity.Doctor;
+
+public interface DoctorService extends BaseServiceInterface {
+
+	/**
+	 * 条件查询医生列表
+	 * 
+	 * @param request
+	 * @param doctor
+	 * @param page
+	 * @param row
+	 * @return
+	 */
+	public abstract Map<String, Object> queryDoctorList(
+			HttpServletRequest request, Doctor doctor, Integer page,
+			Integer row, String memberId, String searchSort, String illClassId,
+			String area,
+			String city);
+
+	/**
+	 * 查询医生设置
+	 * 
+	 * @param memberId
+	 * @return
+	 */
+	public abstract Map<String, Object> queryDoctorSet(String memberId);
+
+	/**
+	 * 查询医生职称
+	 * 
+	 * @return
+	 */
+	public abstract List<Map<String, Object>> queryPositions();
+
+	/**
+	 * 查询医生科室信息
+	 * 
+	 * @return
+	 */
+	public abstract List<Map<String, Object>> queryDeparts();
+
+	/**
+	 * 根据医生ID查询医生详情信息
+	 * 
+	 * @param doctorId
+	 * @return
+	 */
+	public abstract Map<String, Object> queryDocotrById(
+			HttpServletRequest request, String doctorId, String memberId);
+	
+	/**
+	 * 根据医生ID查询医生详情信息(分享卡片时用)
+	 * 
+	 * @param doctorId
+	 * @return
+	 */
+	public abstract Map<String, Object> queryDoctorByCard(String doctorId);
+
+	/**
+	 * 获取医生文章列表
+	 * 
+	 * @param doctorId
+	 * @param row
+	 * @param page
+	 * @return
+	 */
+	public Map<String, Object> queryDoctorArticleList(HttpServletRequest request,String doctorId,
+			Integer row, Integer page);
+
+	/**
+	 * 分页查询我的医生页面列表
+	 * 
+	 * @param memberId
+	 * @return
+	 */
+	public abstract Map<String, Object> queryMyDoctorList(
+			HttpServletRequest request, String memberId, Integer page,
+			Integer row);
+
+	/**
+	 * 根据搜索关键字搜索医生匹配列表
+	 * 
+	 * @param memberId
+	 * @return
+	 */
+	public abstract List<Map<String, Object>> queryDoctorByKey(String searchkey);
+
+	/**
+	 * 查询医生坐诊信息
+	 * 
+	 * @param doctroId
+	 * @return
+	 */
+	public abstract Map<String, Object> queryDoctorZzList(String doctroId,
+			String zzDate);
+
+	/**
+	 * 查询是否有坐诊信息
+	 * 
+	 * @param doctorId
+	 * @return
+	 */
+	public abstract Map<String, Object> queryZzDataCountByDocId(String doctorId);
+
+	/**
+	 * 根据医生ID查询医生评价统计信息
+	 * 
+	 * @param doctorId
+	 * @return
+	 */
+	public abstract Map<String, Object> queryDoctorEvaCensus(HttpServletRequest request,String doctorId,String memberId);
+
+	/**
+	 * 根据医生ID查询医生评价信息（详情页面与评价列表共用）
+	 * 
+	 * @param doctorId
+	 * @return
+	 */
+	public abstract Map<String, Object> queryDoctorEvaList(HttpServletRequest request,String doctorId, Integer row,
+			Integer page, String _sign,String memberId);
+
+	/**
+	 * 查询从今天起7天内坐诊状态
+	 * @param doctorId
+	 * @return
+	 */
+	public abstract Map<String,Object> querySevenZzStatus(String doctorId);
+
+	/**
+	 * 查询疾病及不时分类
+	 * @return
+	 */
+	public abstract List<Map<String,Object>> queryIllClass(Integer num);
+	
+	/**
+	 * 插叙全部不适及分类
+	 * @return
+	 */
+	public abstract List<Department> queryDepartments();
+	
+	/**
+	 * 查询患者病历本列表
+	 * @param orderType
+	 * @param patientId
+	 * @return
+	 */
+	public abstract Map<String, Object> queryMedicalRecords(HttpServletRequest request,Integer orderType,String patientId,String memberId,Integer page,Integer row);
+	
+	/**
+	 * 查询病历本头部查询条件
+	 * @return
+	 */
+	public abstract Map<String,Object> queryMedicalRecordsCons(HttpServletRequest request,String memberId);
+	
+	/**
+	 * 查看医生服务状态
+	 * @param doctorId
+	 * @param orderType
+	 * @return
+	 */
+	public abstract Map<String,Object> checkDoctorIsAccpetAsk(HttpServletRequest request,String memberId,String doctorId,Integer orderType);
+
+	/**
+	 * 查询病症详情
+	 * @param id
+	 * @return
+	 */
+	public abstract Map<String,Object> queryIllClassById(String id);
+}

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="GBK"?>
+<configuration status="off" monitorInterval="1800">
+    <properties>
+        <property name="LOG_HOME">D:\log\syrjia\</property>
+        <property name="INFO_NAME">info</property>
+        <property name="ERROR_NAME">error</property>
+    </properties>
+    <appenders>
+        <!-- 控制台输出 -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <ThresholdFilter level="trace" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout charset="GBK"
+                           pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %class{36} %L %M - %msg%xEx%n"/>
+        </Console>
+        <!--
+        <RollingFile name="RollingFile" fileName="${LOG_HOME}/info.log"
+                 filePattern="${LOG_HOME}/$${date:yyyy-MM}/info-%d{yyyy-MM-dd}-%i.log.zip">
+              <PatternLayout pattern="%d{yyyy.MM.dd 'at' HH:mm:ss.SSS z} [%thread] %-5level %class{36} %L %M - %msg%xEx%n"/>
+               <Policies>
+                <TimeBasedTriggeringPolicy interval="6" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="250 MB"/>
+            </Policies>
+        </RollingFile>
+         -->
+        <!-- info级别日志 -->
+        <RollingRandomAccessFile name="all_info" fileName="${LOG_HOME}/${INFO_NAME}.log"
+                                 filePattern="${LOG_HOME}/$${date:yyyy-MM}/${INFO_NAME}-%d{yyyy-MM-dd}-%i.log.zip">
+            <PatternLayout charset="GBK">
+                <Pattern>%d{yyyy.MM.dd 'at' HH:mm:ss.SSS z} [%thread] %-5level %class{36} %L %M - %msg%xEx%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+            </Policies>
+        </RollingRandomAccessFile>
+        <!-- error级别日志 -->
+        <RollingRandomAccessFile name="all_error" fileName="${LOG_HOME}/${ERROR_NAME}.log"
+                                 filePattern="${LOG_HOME}/$${date:yyyy-MM}/${ERROR_NAME}-%d{yyyy-MM-dd}-%i.log.zip">
+            <PatternLayout charset="GBK">
+                <Pattern>%d{yyyy.MM.dd 'at' HH:mm:ss.SSS z} [%thread] %-5level %class{36} %L %M - %msg%xEx%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+            </Policies>
+        </RollingRandomAccessFile>
+
+    </appenders>
+    <loggers>
+        <root level="info">
+            <appender-ref ref="all_info" level="info"/>
+            <appender-ref ref="all_error" level="error"/>
+            <appender-ref ref="Console"/>
+        </root>
+    </loggers>
+</configuration>

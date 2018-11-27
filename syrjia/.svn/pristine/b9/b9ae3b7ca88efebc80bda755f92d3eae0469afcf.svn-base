@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="addressApp" ng-controller="addressCon">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=no">
+<link rel="stylesheet" type="text/css" href="../../css/mui.min.css">
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+<script src="../../js/mui.min.js"></script>
+<script type="text/javascript" src="../../js/jquery.min.js"></script>
+<script type="text/javascript" src="../../js/angular.min.js"></script>
+<script src="../../js/angular-sanitize.min.js"></script>
+<script src="../../js/util.js"></script>
+<title>收货地址</title>
+<style type="text/css">
+.mui-scroll-wrapper, .scroller {
+	position: absolute;
+	width: 100%;
+}
+.fff{
+	background:#fff;
+}
+</style>
+</head>
+<body ng-class="{true:'notice_back'}[addresss.length>0]" ng-cloak>
+	<div style="padding-bottom:4.6rem;" class="scroller">
+		<p class="title_con" ng-if="addresss.length>0">
+			<i ng-cloak>{{addresss.length}}</i>/<i>100</i>
+		</p>
+		<div class="address_con" ng-repeat="address in addresss" render-finish
+			ng-click="checkAddr(address.id,$event)">
+			<div class="address_top">
+				<p class="address_user">
+					<span ng-bind="address.consignee"></span>
+					<!-- <span>（先生）</span> -->
+					<span ng-bind="address.phone"></span>
+				</p>
+				<p class="address_address">{{((address.province |
+					limitTo:1:address.province.length-1)
+					=='市')?'':address.province}}{{address.city}}{{address.area}}{{address.detailedAddress}}</p>
+			</div>
+			<div class="address_bth" ng-hide="isShowOpera">
+				<div class="address_default">
+					<span
+						ng-class="{false:'address_set',true:''}[address.isDefault==true]"
+						ng-click="setDefault(address,$event)"></span><i>默认地址</i>
+				</div>
+				<div class="address_rigth">
+					<a class="address_edit" ng-click="edit(address.id,$event)">编辑</a> <a
+						class="address_delete" ng-click="del(address.id,$event)"> 删除</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="person_none" ng-if="addresss==null||addresss.length==0">
+		<img src="../../img/address_none.jpg">
+		<p>暂未添加收货地址～</p>
+	</div>
+	
+	<div class="evalua_finish" ng-click="add()" style="z-index:1000" ng-class="{true:'fff'}[null==addresss||addresss.length==0]">
+		<button>添加新地址</button>
+	</div>
+	<script type="text/javascript"
+		src="../../js/shippingaddress/select_address.js"></script>
+	<script type="text/javascript" src="../../js/foot.js"></script>
+</body>
+</html>

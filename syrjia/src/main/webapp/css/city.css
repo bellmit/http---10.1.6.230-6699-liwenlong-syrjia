@@ -1,0 +1,74 @@
+.city {
+    display: block;
+}
+.city .city-wrapper {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    margin-top: 6rem;
+}
+.city .city-wrapper .cities .title {
+    height: 1.75rem;
+    padding-left:0.625rem;
+    line-height: 1.75rem;
+    background-color: #f2f5f7;
+    font-size: 0.8rem;
+    color: #666;
+}
+.city .city-wrapper .cities .item {
+    height: 44px;
+    padding: 0 16px;
+    line-height: 44px;
+    font-size: 1rem;
+    overflow: hidden;
+}
+.city .city-wrapper .cities .item .name {
+    display: block;
+    position: relative;
+}
+.city .city-wrapper .cities .item .name:before,
+.city .city-wrapper .cities .item .name:after {
+    display: block;
+    position: absolute;
+    border-top: 1px solid #e5e5e5;
+    left: 0;
+    width: 100%;
+    content: ' ';
+}
+.city .city-wrapper .cities .item .name:before {
+    display: none;
+    top: 0;
+}
+.city .city-wrapper .cities .item .name:after {
+    display: block;
+    bottom: 0;
+}
+.city .city-wrapper .cities .item:active {
+    background-color: #f0f0f0;
+}
+.city .city-wrapper .cities .item:last-child .name:after {
+    display: none;
+}
+.city .city-wrapper .shortcut {
+    position: absolute;
+    z-index: 30;
+    width: 40px;
+    top:0;
+    margin-top:6rem;
+    right: 0;
+    font-family: Helvetica;
+}
+.city .city-wrapper .shortcut .item {
+    height: 20px;
+
+    padding-left: 24px;
+    text-align: center;
+    font-size: 0.75rem;
+    color: #111;
+}
+@media only screen and (max-height: 600px) {
+    .city .city-wrapper .shortcut .item {
+        padding-top: 3px;
+    }
+}

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="orderApp" ng-controller="orderCon">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=no">
+<link rel="stylesheet" type="text/css" href="../../css/mui.min.css">
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+<script src="../../js/mui.min.js"></script>
+<script type="text/javascript" src="../../js/jquery.min.js"></script>
+<script type="text/javascript" src="../../js/angular.min.js"></script>
+<script src="../../js/angular-sanitize.min.js"></script>
+<script src="../../js/ng-infinite-scroll.js"></script>
+<script src="../../js/util.js?v=1"></script>
+<title>我的订单</title>
+<style type="text/css">
+.scroll {
+	overflow: scroll;
+	-webkit-overflow-scrolling:touch;
+}
+.search_import input, .store_search input{
+	text-indent: 0!important;
+}
+</style>
+</head>
+<body class="notice_back" style="overflow: hidden;">
+	<div class="search_top">
+		<div class="search_import search_bar">
+			<form action="javascript:return true;">
+				<span></span>
+				<input type="search" placeholder="搜索订单" ng-model="orderNoSearch" ng-keyup="search($event)">
+			</form>
+		</div>
+		<a class="mui-action-back">取消</a>
+	</div>
+	<ul class="order_title">
+		<li ng-click="checkTab(1)"><span
+			ng-class="{1:'order_checked'}[check]">全部</span>
+		</li>
+		<li ng-click="checkTab(2)"><span
+			ng-class="{2:'order_checked'}[check]">待付款</span>
+		</li>
+		<li ng-click="checkTab(3)"><span
+			ng-class="{3:'order_checked'}[check]">待收货</span>
+		</li>
+		<li ng-click="checkTab(4)"><span
+			ng-class="{4:'order_checked'}[check]">待评价</span>
+		</li>
+	</ul>
+	<div class="order_conmain">
+		<div class=" scroll all" infinite-scroll-distance='0'
+			ng-class="{1:'',2:'ng-hide',3:'ng-hide',4:'ng-hide',5:'ng-hide'}[check]"
+			ng-controller="orderAll" infinite-scroll='loadMore1("all")'
+			infinite-scroll-disabled='orderAllDis'
+			infinite-scroll-immediate-check=true>
+			<div class="order_main">
+				<div class="order_con" ng-repeat="order in orders" ng-click="orderDetail($event,order.orderNo)" ng-cloak>
+					<h3 class="order_con_title">
+						<p>订单号：{{order.orderNo}}</p>
+						<span ng-bind="order.payState"></span>
+					</h3>
+					<div ng-bind="order.goods | break" compile-html></div>
+					<p class="order_sum">
+						共{{order.goods | length}}件物品 合计：¥<span>{{((order.receiptsPrice | float) +
+							(order.postage | float)) | number:2}}</span>（含运费¥{{order.postage |
+						number:2}}）
+					</p>
+					<div class="order_btn">
+						<button class="order_button" ng-if="order.paymentStatus==1" ng-click="pay($event,order.orderNo)">立即支付</button>
+						<button class="order_button" ng-if="order.paymentStatus==2&&order.orderStatus==2" ng-click="success($event,order)">确认收货</button>
+						<button ng-if="order.orderStatus==2||order.orderStatus==5" ng-click="logistics($event,order.orderNo)">查看物流</button>
+						<button ng-if="order.paymentStatus==6 || order.paymentStatus==5" ng-click="del($event,order.orderNo)">删除订单</button>
+						<button ng-if="order.paymentStatus==1" ng-click="cancel($event,order)">取消订单</button>
+						<button ng-if="order.paymentStatus==5&&order.orderStatus==5&&order.evalId==null" ng-click="evaluate($event,order.orderNo)">评价</button>
+						<button ng-if="(order.paymentStatus==2 || order.paymentStatus==5)&&order.isCustomer==0" ng-click="callCostom($event,order)">联系客服</button>
+						<!-- <button>申请退款</button> -->
+					</div>
+				</div>
+			</div>
+			<!-- 暂无订单 -->
+			<div class="order_none" ng-cloak ng-if="null==orders||orders.length==0">
+				<img src="../../img/order_none.png">
+				<p>暂无订单~</p>
+			</div>
+			<!-- 暂无订单    end-->
+		</div>
+
+		<div class=" scroll dfk" infinite-scroll-distance='0'
+			ng-class="{1:'ng-hide',2:'',3:'ng-hide',4:'ng-hide',5:'ng-hide'}[check]"
+			ng-controller="dfk" infinite-scroll='loadMore2("dfk")'
+			infinite-scroll-disabled='orderDfkDis'
+			infinite-scroll-immediate-check=true>
+			<div class="order_main">
+				<div class="order_con"  ng-repeat="order in orders" ng-click="orderDetail($event,order.orderNo)" ng-cloak>
+					<h3 class="order_con_title">
+						<p>订单号：{{order.orderNo}}</p>
+						<span ng-bind="order.payState"></span>
+					</h3>
+					<div ng-bind="order.goods | break" compile-html></div>
+					<p class="order_sum">
+						共{{order.goods | length}}件物品 合计：¥<span>{{((order.receiptsPrice | float) +
+							(order.postage | float)) | number:2}}</span>（含运费¥{{order.postage |
+						number:2}}）
+					</p>
+					<div class="order_btn">
+						<button class="order_button" ng-if="order.paymentStatus==1" ng-click="pay($event,order.orderNo)">立即支付</button>
+						<button class="order_button" ng-if="order.paymentStatus==2&&order.orderStatus==2" ng-click="success($event,order)">确认收货</button>
+						<button ng-if="order.orderStatus==2||order.orderStatus==5" ng-click="logistics($event,order.orderNo)">查看物流</button>
+						<button ng-if="order.paymentStatus==6 || order.paymentStatus==5" ng-click="del($event,order.orderNo)">删除订单</button>
+						<button ng-if="order.paymentStatus==1" ng-click="cancel($event,order)">取消订单</button>
+						<button ng-if="order.paymentStatus==5&&order.orderStatus==5&&order.evalId==null" ng-click="evaluate($event,order.orderNo)">评价</button>
+						<button ng-if="(order.paymentStatus==2 || order.paymentStatus==5)&&order.isCustomer==0" ng-click="callCostom($event,order)">联系客服</button>
+					</div>
+				</div>
+			</div>
+			<!-- 暂无订单 -->
+			<div class="order_none" ng-cloak ng-if="null==orders||orders.length==0">
+				<img src="../../img/order_none.png">
+				<p>暂无订单~</p>
+			</div>
+			<!-- 暂无订单    end-->
+		</div>
+		<div class=" scroll dsh" infinite-scroll-distance='0'
+			ng-class="{1:'ng-hide',2:'ng-hide',3:'',4:'ng-hide',5:'ng-hide'}[check]"
+			ng-controller="dsh" infinite-scroll='loadMore3("dsh")'
+			infinite-scroll-disabled='orderDSHDis'
+			infinite-scroll-immediate-check=true>
+			<div class="order_main">
+				<div class="order_con"  ng-repeat="order in orders" ng-click="orderDetail($event,order.orderNo)" ng-cloak>
+					<h3 class="order_con_title">
+						<p>订单号：{{order.orderNo}}</p>
+						<span ng-bind="order.payState"></span>
+					</h3>
+					<div ng-bind="order.goods | break" compile-html></div>
+					<p class="order_sum">
+						共{{order.goods | length}}件物品 合计：¥<span>{{((order.receiptsPrice | float) +
+							(order.postage | float)) | number:2}}</span>（含运费¥{{order.postage |
+						number:2}}）
+					</p>
+					<div class="order_btn">
+						<button class="order_button" ng-if="order.paymentStatus==1" ng-click="pay($event,order.orderNo)">立即支付</button>
+						<button class="order_button" ng-if="order.paymentStatus==2&&order.orderStatus==2" ng-click="success($event,order)">确认收货</button>
+						<button ng-if="order.orderStatus==2||order.orderStatus==5" ng-click="logistics($event,order.orderNo)">查看物流</button>
+						<button ng-if="order.paymentStatus==6 || order.paymentStatus==5" ng-click="del($event,order.orderNo)">删除订单</button>
+						<button ng-if="order.paymentStatus==1" ng-click="cancel($event,order)">取消订单</button>
+						<button ng-if="order.paymentStatus==5&&order.orderStatus==5&&order.evalId==null" ng-click="evaluate($event,order.orderNo)">评价</button>
+						<button ng-if="(order.paymentStatus==2 || order.paymentStatus==5)&&order.isCustomer==0" ng-click="callCostom($event,order)">联系客服</button>
+					</div>
+				</div>
+			</div>
+			<!-- 暂无订单 -->
+			<div class="order_none" ng-cloak ng-if="null==orders||orders.length==0">
+				<img src="../../img/order_none.png">
+				<p>暂无订单~</p>
+			</div>
+			<!-- 暂无订单    end-->
+		</div>
+		<div class=" scroll ywc" infinite-scroll-distance='0'
+			ng-class="{1:'ng-hide',2:'ng-hide',3:'ng-hide',4:'',5:'ng-hide'}[check]"
+			ng-controller="ywc" infinite-scroll='loadMore4("ywc")'
+			infinite-scroll-disabled='orderYWCDis'
+			infinite-scroll-immediate-check=true>
+			<div class="order_main">
+				<div class="order_con" ng-repeat="order in orders" ng-click="orderDetail($event,order.orderNo)" ng-cloak>
+					<h3 class="order_con_title">
+						<p>订单号：{{order.orderNo}}</p>
+						<span ng-bind="order.payState"></span>
+					</h3>
+					<div ng-bind="order.goods | break" compile-html></div>
+					<p class="order_sum">
+						共{{order.goods | length}}件物品 合计：¥<span>{{((order.receiptsPrice | float) +
+							(order.postage | float)) | number:2}}</span>（含运费¥{{order.postage |
+						number:2}}）
+					</p>
+					<div class="order_btn">
+						<button class="order_button" ng-if="order.paymentStatus==1" ng-click="pay($event,order.orderNo)">立即支付</button>
+						<button class="order_button" ng-if="order.paymentStatus==2&&order.orderStatus==2" ng-click="success($event,order)">确认收货</button>
+						<button ng-if="order.orderStatus==2||order.orderStatus==5" ng-click="logistics($event,order.orderNo)">查看物流</button>
+						<button ng-if="order.paymentStatus==6 || order.paymentStatus==5" ng-click="del($event,order.orderNo)">删除订单</button>
+						<button ng-if="order.paymentStatus==1" ng-click="cancel($event,order)">取消订单</button>
+						<button ng-if="order.paymentStatus==5&&order.orderStatus==5&&order.evalId==null" ng-click="evaluate($event,order.orderNo)">评价</button>
+						<button ng-if="(order.paymentStatus==2 || order.paymentStatus==5)&&order.isCustomer==0" ng-click="callCostom($event,order)">联系客服</button>
+					</div>
+				</div>
+			</div>
+			<!-- 暂无订单 -->
+			<div class="order_none" ng-cloak ng-if="null==orders||orders.length==0">
+				<img src="../../img/order_none.png">
+				<p>暂无订单~</p>
+			</div>
+			<!-- 暂无订单    end-->
+		</div>
+	</div>
+	
+	<script type="text/javascript" src="../../js/order/order.js"></script>
+	<script type="text/javascript" src="../../js/foot.js"></script>
+</body>
+</html>

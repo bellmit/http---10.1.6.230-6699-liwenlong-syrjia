@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="shoppingCartApp" ng-controller="shoppingCartCon">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=no">
+<link rel="stylesheet" type="text/css" href="../../css/mui.min.css">
+<link rel="stylesheet" type="text/css" href="../../css/style.css?v=1">
+<script src="../../js/mui.min.js"></script>
+<script type="text/javascript" src="../../js/jquery.min.js"></script>
+<script type="text/javascript" src="../../js/angular.min.js"></script>
+<script src="../../js/angular-sanitize.min.js"></script>
+<script src="../../js/util.js"></script>
+<title>购物车</title>
+</head>
+<body>
+	<div class="cart_goodscon">
+		<div class="cart_con" ng-repeat="shopCart in shopCarts" ng-cloak
+			render-finish>
+			<p class="cart_notice" ng-if="$index==0" ng-bind="mallActivity"></p>
+			<div class="cart_list" ng-cloak>
+				<h3>
+					<span class="cart_check"
+						ng-class="{1:'cart_checked'}[shopCart.check]" ng-cloak
+						ng-click="checkSupplier(shopCart)"></span>{{shopCart.name}}
+				</h3>
+				<div class="cart_discount" ng-repeat="good in shopCart.goods" style="margin-top: 0.625rem;"
+					ng-cloak id="{{good.id}}">
+					<p class="cart_disp" ng-if="good.activity.length>0" ng-cloak>
+						<span ng-repeat="activity in good.activity" ng-cloak
+							ng-bind="activity.label"></span>
+					</p>
+					<div class="cart_goods">
+						<p class="cart_stockout" ng-if="good.stock<good.buyCount" ng-cloak>该商品库存不足</p>
+						<span class="cart_check" ng-class="{1:'cart_checked'}[good.check]"
+							ng-click="checkBox(shopCart,good)"></span>
+						<div class="cart_goodeail">
+							<i ng-click="deleteShopCart(good.id)"></i> <img
+								ng-src="{{good.picture}}" ng-cloak>
+							<div class="cart_introduce">
+								<h3 ng-cloak>
+									<span ng-if="shopCart.isProprietary==1">自营</span>{{good.name}}
+								</h3>
+								<!-- <p class="cart_property" ng-bind="good.specifications"></p> -->
+								<div class="cart_price" ng-cloak>
+									<p>
+										¥{{good.price | number:2}}<span
+											ng-if="null!=good.activityPrice">¥{{good.activityPrice
+											| number:2}}</span>
+									</p>
+									<ul class="s_none">
+										<li class="fkleefl"
+											ng-click="subtract(good.goodsId,shopCart.id,good.id,good.pricenumId)">-</li>
+										<li><input type="text" value="1" class="num"
+											ng-model="good.buyCount" readonly="readonly">
+										</li>
+										<li class="fkleefr"
+											ng-click="add(good.goodsId,shopCart.id,good.id,good.pricenumId)">+</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="cart_subtotal">
+					<p>优惠金额：-¥{{shopCart.sales | number:2}}</p>
+					<p>总计： ¥{{shopCart.prices| number:2}}</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="cart_con cart_lack" ng-if="goods.length>0" ng-cloak>
+			<div class="cart_list">
+				<p class="cart_stockout">该商品库存不足</p>
+				<div class="cart_goods" ng-repeat="good in goods">
+					<span class="cart_check"></span>
+					<div class="cart_goodeail">
+						<i ng-click="deleteShopCart(good.id,1)"></i> <img
+							ng-src="{{good.picture}}">
+						<div class="cart_introduce">
+							<h3 ng-bind="good.name"></h3>
+							<p class="cart_property" ng-bind="good.specifications"></p>
+							<div class="cart_price">
+								<p ng-cloak>
+									¥{{good.price | number:2}}<span
+										ng-if="null!=good.activityPrice">¥{{good.activityPrice
+										| number:2}}</span>
+								</p>
+								<ul class="s_none">
+									<li class="fkleefl">-</li>
+									<li><input type="text" value="1" class="num"
+										readonly="readonly">
+									</li>
+									<li class="fkleefr">+</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="cart_sum" ng-cloak>
+		<p ng-if="null!=total&&total!=0.00" ng-cloak>
+			<span>总额：¥{{total| number:2}}</span><span>优惠：¥{{totalSale|
+				number:2}}</span>
+		</p>
+	</div>
+	<div style="margin-bottom: 6.25rem;"></div>
+	<div class="next_bot" ng-cloak>
+		<div class="next_sum">
+			<p>
+				<span class="cart_check" ng-class="{1:'cart_checked'}[check]"
+					ng-click="checkAll()"></span>全选
+			</p>
+			<h3 ng-cloak>
+				合计：<span>¥{{total| number:2}}</span>
+			</h3>
+		</div>
+		<button ng-click="toPay()">结算</button>
+	</div>
+
+
+	<!-- 	购物车为空 -->
+	<div class="cart_empty"
+		ng-if="(null==shopCarts||shopCarts.length==0)&&(null==goods||goods.length==0)"
+		ng-cloak>
+		<h3>
+			您还没有选择任何商品，<a href="store_index.html">去健康商城逛逛吧</a>
+		</h3>
+		<a class="cart_service"  ng-click="kf()">有疑问？找客服<span></span>
+		</a>
+	</div>
+	<div class="next_bot" style="display: none">
+		<div class="next_sum">
+			<p>
+				<span class="cart_check"></span>全选
+			</p>
+		</div>
+		<button class="cart_gray">结算</button>
+	</div>
+	<!-- 	购物车为空    end-->
+	<script type="text/javascript"
+		src="../../js/goods/shopping_cart.js?v=22"></script>
+	<script type="text/javascript" src="../../js/foot.js"></script>
+</body>
+</html>

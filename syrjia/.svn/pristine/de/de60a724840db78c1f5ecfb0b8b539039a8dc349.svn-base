@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="searchListApp" ng-controller="searchListCon">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+	<link rel="stylesheet" type="text/css" href="../../css/style.css">
+	<link rel="stylesheet" type="text/css" href="../../css/mui.min.css">
+	<link rel="stylesheet" type="text/css" href="../../css/owl.carousel.css">
+	<link rel="stylesheet" type="text/css" href="../../css/owl.theme.css">
+	<link rel="stylesheet" href="../../css/swiper.css">
+	<script type="text/javascript" src="../../js/jquery.min.js"></script>
+	<script src="../../js/mui.min.js"></script>
+	<script type="text/javascript" src="../../js/owl.carousel.js"></script>
+	<script src="../../js/swiper.min.js"></script>
+	<script type="text/javascript" src="../../js/angular.min.js"></script>
+	<script src="../../js/angular-sanitize.min.js"></script>
+	<script src="../../js/util.js"></script>
+	<title>知识圈</title>
+	<style>
+		#konw_search{margin-top:4.5rem;}
+		.know_search_user img{
+		  	display:  block;
+		    width:  1.125rem;
+		    height:  1.125rem;
+		    border-radius: 50%;
+		    -webkit-border-radius: 50%;
+		}
+		.know_search_user{padding-top:0.25rem;}
+		.know_search_label{flex-wrap:wrap;margin-bottom:0;}
+		.know_search_label span{margin-bottom:0.5rem;}
+		.not_search{line-height: 4rem;text-align: center;font-size: 0.8rem;color:#999;}
+		.search_top{padding:0.93rem 0;}
+		.search_import{margin-left:0.93rem;}
+		.search_top a{margin-right:0.93rem;}
+		.search_top{position:fixed;top:0;left:0;width:100%;z-index:999;}
+		.mui-pull-bottom-pocket{z-index: 99999};
+	</style>
+</head>
+
+<body>
+<div class="commo_con" ng-cloak>
+	<div class="search_top">
+		<div class="search_import search_bar">
+			<form action="javascript:return true;">
+				<span></span>
+						<input id="searchName" value="{{name}}"  ng-click="checkSearchDoc()" readonly="readonly" type="search" placeholder="搜索标题,医生,标签" class="search_input">
+			</form>
+		</div>
+		<a class="mui-action-back">取消</a>
+	</div>
+	<div id="konw_search" >
+		<div class="mui-scroll">
+			<ul class="konw_search_con " >
+				<li ng-repeat="knowledge in knowledges" >
+					<h3 ng-click="detail(knowledge.id)">
+						<span ng-cloak>{{knowledge.title}}</span>
+						<i ng-cloak>{{knowledge.readNum}}阅读</i>
+					</h3>
+					<span ng-click="detail(knowledge.id)" class="know_search_time" ng-cloak >发布时间：{{knowledge.timesapp}}</span>
+					<p class="know_search_user" ng-click="detail(knowledge.id)">
+						<img  ng-src="{{knowledge.docUrl}}">
+						<span ng-cloak>{{knowledge.docName}}</span>
+						<span ng-cloak>{{knowledge.docPosition}}</span>
+						<span ng-cloak>{{knowledge.hosName}}</span>
+					</p>
+					<p class="know_search_artic" ng-click="detail(knowledge.id)" ng-bind-html="knowledge.content|splitContent" ng-cloak></p>
+					<p class="know_search_label" ng-click="detail(knowledge.id)"  ng-bind="knowledge.labelNames | splitLabelNames" compile-html><span></span></p>
+					<div class="know_operate search_operate">
+						<span ng-if="knowledge.collect==1" class="know_collect" ng-click="collect($event,knowledge.id,knowledge)">{{knowledge.collectNum}}收藏</span>
+						<span ng-if="knowledge.collect==2" class="know_collect know_collected" ng-click="collect($event,knowledge.id,knowledge)">{{knowledge.collectNum}}收藏</span>
+						<span ng-if="knowledge.praise==1" class="know_praise" ng-click="praise($event,knowledge.id,knowledge)">{{knowledge.pointNum}}点赞</span>
+						<span ng-if="knowledge.praise==2" class="know_praise know_praised" ng-click="praise($event,knowledge.id,knowledge)">{{knowledge.pointNum}}点赞</span>
+						<span class="know_review" ng-click="detail(knowledge.id)">{{knowledge.plNum}}评论</span>
+						<!-- <span class="know_share" ng-click="share(knowledge.id)"><span></span ng-cloak>{{knowledge.shareNum}}分享</span> -->
+					</div>
+				</li>
+			</ul>
+			<ul class="konw_search_con" ng-if="type!=1">
+				<p class="not_search" ng-if="knowledges.length==0 ">暂无搜索内容</p>
+				<div class="know_nomore" ng-if="(knowledges.length>0&&hotKnowledges.length>0)||queryAll==1">
+					<span>没有更多文章了</span>
+				</div>
+				<h3 ng-if="hotKnowledges.length>0"><span class="left_icon" ></span>热门文章</h3>
+				<li ng-repeat="knowledge in hotKnowledges">
+					<h3 ng-click="detail(knowledge.id)">
+						<span ng-cloak>{{knowledge.title}}</span>
+						<i ng-cloak>{{knowledge.readNum}}阅读</i>
+					</h3>
+					<span class="know_search_time" ng-click="detail(knowledge.id)" ng-cloak >发布时间：{{knowledge.timesapp}}</span>
+					<p class="know_search_user" ng-click="detail(knowledge.id)">
+						<img  ng-src="{{knowledge.docUrl}}">
+						<span ng-cloak>{{knowledge.docName}}</span>
+						<span ng-cloak>{{knowledge.docPosition}}</span>
+						<span ng-cloak>{{knowledge.hosName}}</span>
+					</p>
+					<p class="know_search_artic" ng-click="detail(knowledge.id)" ng-bind-html="knowledge.content|splitContent" ng-cloak></p>
+					<p class="know_search_label"  ng-bind="knowledge.labelNames | splitLabelNames" compile-html><span></span></p>
+					<div class="know_operate search_operate">
+						<span ng-if="knowledge.collect==1" class="know_collect" ng-click="collect($event,knowledge.id,knowledge)">{{knowledge.collectNum}}收藏</span>
+						<span ng-if="knowledge.collect==2" class="know_collect know_collected" ng-click="collect($event,knowledge.id,knowledge)">{{knowledge.collectNum}}收藏</span>
+						<span ng-if="knowledge.praise==1" class="know_praise" ng-click="praise($event,knowledge.id,knowledge)">{{knowledge.pointNum}}点赞</span>
+						<span ng-if="knowledge.praise==2" class="know_praise know_praised" ng-click="praise($event,knowledge.id,knowledge)">{{knowledge.pointNum}}点赞</span>
+						<span class="know_review" ng-click="detail(knowledge.id)">{{knowledge.plNum}}评论</span>
+						<!-- <span class="know_share" ng-click="share(knowledge.id)"><span></span ng-cloak>{{knowledge.shareNum}}分享</span> -->
+					</div>
+				</li>
+			</ul>
+		</div>
+	</div>
+	</div>
+</body>
+<script type="text/javascript" src="../../js/knowledge/know_search.js"></script>
+<script type="text/javascript" src="../../js/foot.js"></script>
+<script>
+	var H = $(window).height();
+	$(".commo_con").height(H);
+	
+	var searcH = H - $(".search_top").height();
+	$("#konw_search").height(searcH);
+</script>
+</html>

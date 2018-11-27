@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="billApp" ng-controller="billCon">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<link rel="stylesheet" type="text/css" href="../../css/mui.min.css">
+<link href="../../css/mui.picker.min.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+<script src="../../js/mui.min.js"></script>
+ <script src="../../js/mui.picker.min.js"></script>
+<script type="text/javascript" src="../../js/jquery.min.js"></script>
+<script src="../../js/iscroll.js"></script>
+<script type="text/javascript" src="../../js/angular.min.js"></script>
+<script src="../../js/angular-sanitize.min.js"></script>
+<script src="../../js/util.js"></script>
+<title>我的收益</title>
+<style type="text/css">
+.commo_none span{
+	background:none;
+}
+.mui-pull-caption{
+	width: 100%;
+	padding-top: 0.5rem;
+}
+.mui-dtpicker-header button{
+	    background: #fff!important;
+}
+.settle_goods{
+	padding-top: 0.5rem;
+}	
+.settle_status{
+    border-bottom: 1px solid #dee0e2;
+}
+.mui-poppicker-btn-ok{
+	z-index: 1000;
+}
+.widthUi li{
+	width: 26.7%;
+}
+.widthUi .settle_classify{
+	width: 27.7%;
+}
+.mui-poppicker-header{background: #f6f6f6;border:none;padding:0;height: 2.5rem;}
+.mui-poppicker-btn-ok{line-height: 2.5rem;width: auto;background: none;font-size: 0.8rem;color: #cc0422;padding:0 1rem;position: absolute;right: 0;top: 0;}
+.mui-poppicker-btn-cancel{background: none;font-size: 0.8rem;color: #a8a8a8;width: auto;padding:0 1rem;position: absolute;left: 0;top: 0;}
+</style>
+</head>
+<body class="notice_back" ng-cloak>
+<div id="pullrefresh" class="mui-content mui-scroll-wrapper">
+			<div class="mui-scroll">
+	<div class="settle_top">
+		<div class="card_title settle_title">
+			<a></a>
+		</div>
+		<div class="settle_sum">
+			<h3>{{total.all|number:2}}</h3>
+			<span>总收入(税前)</span>
+		</div>
+		<img src="../../img/settle_top.png">
+	</div>
+	<div class="settle_binding" ng-click="historyCard()">
+		<h3>绑定银行卡</h3>
+		<i>{{''==total.lastBankCode?'请绑定银行卡':(total.lastBankCode | encrypt)}}</i>
+	</div>
+	
+	<!-- <div class="settle_btn">
+		<a ng-click="monthBill()">月结账单查看</a>
+		<a>提现</a>
+	</div> -->
+	<div class="settle_detail">
+		<h3><span>收益明细</span></h3>
+		<ul class="settle_inquire" ng-class="{1:'widthUi'}[total.type]">
+			<li class="settle_classify" id="settle_type">
+				<i class="settle_type">选类型</i>
+				<div class="settle_position" style="display: none;z-index: 99999">
+					<p value="-1">全部</p>
+					<p value="1">商品引流收益</p>
+					<p value="2">商品推广收益</p>
+					<p value="3">调理服务收益</p>
+					<p value="4">调理引流收益</p>
+					<p value="5">图文调理收益</p>
+					<!-- <p value="6">图文复诊收益</p> -->
+					<p value="7">图文咨询收益</p>
+					<p value="8">电话调理收益</p>
+					<p value="9">电话咨询收益</p>
+					<!-- <p value="10">电话复诊收益</p> -->
+					<p value="11">锦旗收益</p>					
+				</div>
+			</li>
+			<li>
+				<button id="startTime" style="background: #f4f5f7" data-options="{&quot;type&quot;:&quot;date&quot;,&quot;beginYear&quot;:2018}" class="fr btn personal_btn">{{null==startTime?'开始时间':startTime}}</button></li>
+			</li>
+			<li><button id="endTime" style="background: #f4f5f7" data-options="{&quot;type&quot;:&quot;date&quot;,&quot;beginYear&quot;:2018}" class="fr btn personal_btn">{{null==endTime?'结束时间':endTime}}</button></li>
+			<li class="settle_classify" id="settle_doctor" ng-show="total.type==2">
+				<i class="settle_doctor">选医生</i>
+			</li>
+			<li ng-click="search()">查询</li>
+		</ul>
+		<p class="settle_date" ng-show="null!=startTime&&null!=endTime">{{startTime}} — {{endTime}}</p>
+		<p class="settle_date" ng-show="null!=startTime&&null==endTime">{{startTime}}</p>
+		<p class="settle_date" ng-show="null==startTime&&null!=endTime">{{endTime}}</p>
+		<div class="settle_month" ng-repeat="order in orders">
+			<h3 class="settle_month_title" ng-if="order.type==1">
+				<p>
+					<span ng-bind="order.month"></span>
+					<span ng-if="order.monthPrice>=0">+{{order.monthPrice| number:2}}</span>
+					<span ng-if="order.monthPrice<0">{{order.monthPrice| number:2}}</span>
+				</p>
+			</h3>
+			<ul ng-if="order.type!=1">
+				<li ng-click="order.check==1?order.check=2:order.check=1">
+					<h3>
+						<p><span ng-bind="order.time"></span>{{total.type==2?(order.docName | limitTo : 4):(order.realName | limitTo : 4)}}<i>|</i>{{order.settlementTypeName}}</p>
+						<p class="settle_slow" ng-if="order.settlementPrice >= 0 ">+{{order.settlementPrice | number:2}}<i></i></p>
+						<p class="settle_slow" ng-if="order.settlementPrice < 0 ">{{order.settlementPrice | number:2}}<i></i></p>
+					</h3>
+					<div class="settle_settle" ng-show="order.check==1">
+						<div class="settle_order" ng-bind="order | break" compile-html>
+						</div>
+
+						<p class="settle_sumoney">
+							<span>订单金额￥{{order.receiptsPrice | number:2}}</span>
+							<span>返利￥{{order.settlementPrice| number:2}}</span>
+						</p>
+					</div>
+				</li>
+			</ul>
+		</div>
+		</div>
+		</div>
+	</div>
+	<script type="text/javascript"
+		src="../../js/myself/bill.js"></script>
+	<script type="text/javascript" src="../../js/foot.js"></script>
+</body>
+</html>
