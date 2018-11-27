@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="evaluateApp" ng-controller="evaluateCon">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=no">
+<link rel="stylesheet" type="text/css" href="../../css/mui.min.css">
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+<script src="../../js/mui.min.js"></script>
+<script type="text/javascript" src="../../js/jquery.min.js"></script>
+<script type="text/javascript" src="../../js/angular.min.js"></script>
+<script src="../../js/angular-sanitize.min.js"></script>
+<script src="../../js/util.js"></script>
+<title ng-bind="Toptitle"></title>
+<style type="text/css">
+.ccc{
+	    color: rgba(255,255,255,0.8)!important;
+	    background-color: #be2626;
+}
+</style>
+</head>
+<body class="notice_back">
+	<div class="evalua_con" ng-repeat="order in orders" ng-cloak>
+		<div class="evalua_goods">
+			<img ng-src="{{order.picture}}">
+			<div class="evalua_user">
+				<h3>
+					<span ng-bind="order.name"></span>
+					<span ng-cloak>¥{{order.price}}</span>
+				</h3>
+				<p>
+					<span ng-bind="order.specifications"></span>
+					<span ng-cloak>x {{order.goodsNum}}</span>
+				</p>
+			</div>
+		</div>
+		<div class="evalua_grade">
+			<h3>评分</h3>
+			<ul>
+				<li ng-class="{1:'evalua_checked',2:'evalua_checked',3:'evalua_checked',4:'evalua_checked',5:'evalua_checked'}[order.evaluateLevel]" ng-click="order.evaluateLevel=1"></li>
+				<li ng-class="{1:'',2:'evalua_checked',3:'evalua_checked',4:'evalua_checked',5:'evalua_checked'}[order.evaluateLevel]" ng-click="order.evaluateLevel=2"></li>
+				<li ng-class="{1:'',2:'',3:'evalua_checked',4:'evalua_checked',5:'evalua_checked'}[order.evaluateLevel]" ng-click="order.evaluateLevel=3"></li>
+				<li ng-class="{1:'',2:'',3:'',4:'evalua_checked',5:'evalua_checked'}[order.evaluateLevel]" ng-click="order.evaluateLevel=4"></li>
+				<li ng-class="{1:'',2:'',3:'',4:'',5:'evalua_checked'}[order.evaluateLevel]" ng-click="order.evaluateLevel=5"></li>
+			</ul>
+		</div>
+		<ul class="evalua_evaluate">
+			<li ng-repeat="evaluate in evaluates" ng-bind="evaluate.name" ng-click="checkLabel($event,evaluate.name,order)"></li>
+		</ul>
+		<div class="evalua_text">
+			<textarea placeholder="请输入商品评价，如：物流快，品质有保障" ng-model="order.evaluate_note" rows="2" maxlength="200"></textarea>
+		</div>
+		<ul class="evalua_img">
+			<li>
+				<div class="evalua_add">
+					<img src="../../img/evalua_add.png" class="evalua_addimg">
+					<input type="file" multiple="multiple"  accept="image/*"  id="{{order.orderDetailId}}" onchange="checkPicture(this)">
+				</div>
+				<p>添加照片</p>
+			</li>
+			
+		</ul>
+	</div>
+	<div style="margin-bottom: 5rem;"></div>
+	<div class="evalua_finish">
+		<button ng-click="save()">完成</button>
+	</div>
+	<script type="text/javascript" src="../../js/evaluate/evaluate.js"></script>
+	<script type="text/javascript" src="../../js/foot.js"></script>
+</body>
+</html>

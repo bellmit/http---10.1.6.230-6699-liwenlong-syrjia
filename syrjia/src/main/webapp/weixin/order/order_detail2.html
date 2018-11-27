@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="orderApp" ng-controller="orderCon">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+	<link rel="stylesheet" type="text/css" href="../../css/mui.min.css">
+	<link rel="stylesheet" type="text/css" href="../../css/style.css">
+	<script src="../../js/mui.min.js"></script>
+	<script type="text/javascript" src="../../js/jquery.min.js"></script>
+	<script type="text/javascript" src="../../js/angular.min.js"></script>
+	<script src="../../js/angular-sanitize.min.js"></script>
+	<script src="../../js/util.js"></script>
+	<title>订单详情</title>
+	<style type="text/css">
+	.order_address1{
+		    padding: 0.7rem 0.93rem 0.7rem 0.93rem;
+		    background: #fff;
+		    background-size: 0.875rem 1.25rem;
+		    margin-bottom: 0.5rem;
+	}
+	</style>
+</head>
+<body class="notice_back" ng-cloak>
+	<p class="order_time">{{dayNum}}</p>
+	<div class="order_top">
+		<p>订单状态：<span>{{order.payState}}</span></p>
+		<p>订单编号：<span>{{order.mainOrderNo||order.orderNo}}</span></p>
+		<p>下单时间：<span>{{order.time}}</span></p>
+	</div>
+	<div class="order_address" ng-if="''==order.serverName&&null!=order.consignee">
+		<h3><span>{{order.consignee}}</span><span>{{order.consigneePhone}}</span></h3>
+		<p>{{order.province}}{{order.city}}{{order.area}}{{order.detailedAddress}}</p>
+	</div>
+	<div class="order_address order_address1" ng-if="''!=order.serverName">
+		<h3><span>{{order.name}}</span><span>{{order.phone}}</span></h3>
+	</div>
+	<div class="order_con order_list">
+		<div class="order_number">
+			<p>订单号：{{order.orderNo}}</p>
+			<span>{{1==order.paymentStatus?order.mainPayState:order.payState}}</span>
+		</div>
+		<div class="order_goods">
+			<img ng-src="{{''==order.serverName?'../../img/tlfa.png':order.photo}}">
+			<div class="order_detail">
+				<h3>
+					<span>{{''==order.serverName?'调理方案':order.serverName}}</span>
+					<span>¥{{order.receiptsPrice | number:2}}</span>
+				</h3>
+				<p>问诊医师：{{order.docName}}</p>
+				<p class="order_num">医师职称：{{order.docPosition}}  <span>x {{order.num}}</span></p>
+			</div>
+		</div>
+	</div>
+	<div class="order_particulars">
+		<div class="order_detaillist">
+			<p><span>商品总额</span><span>¥{{(order.receiptsPrice-order.postage) | number:2}}</span></p>
+			<p><span>优惠金额</span><span>-¥0.00</span></p>
+			<p><span>运费</span><span>¥{{null==order.postage?'0.00':(order.postage)| number:2}}</span></p>
+		</div>
+		<h3>实付金额：¥{{order.receiptsPrice | number:2}}</h3>
+	</div>
+	<div class="order_btn order_bot" ng-if="(order.paymentStatus==2&&order.orderStatus==2)||((order.paymentStatus==2 || order.paymentStatus==5)&&order.isCustomer==0)||(order.orderStatus==2||order.orderStatus==5)||(order.paymentStatus==5&&order.orderStatus==5&&order.evalId==null)||(order.paymentStatus==1&&order.recordState==1)">
+		<button ng-cloak ng-if="(order.paymentStatus==2&&order.orderStatus==2)&&order.orderType!=4&&order.orderType!=5&&order.orderType!=6&&order.orderType!=7&&order.orderType!=8&&order.orderType!=9&&order.orderType!=21&&order.orderType!=22" class="order_button"  ng-click="success($event,order)">确认收货</button>
+		<button ng-if="(order.paymentStatus==2 || order.paymentStatus==5)&&order.isCustomer==0" ng-click="callCostom($event,order)">联系客服</button>
+		<button ng-cloak ng-if="(order.orderStatus==2||order.orderStatus==5)&&order.orderType!=4&&order.orderType!=5&&order.orderType!=6&&order.orderType!=7&&order.orderType!=8&&order.orderType!=9&&order.orderType!=21&&order.orderType!=22" ng-click="logistics(order.orderNo)">查看物流</button>
+		<button ng-cloak ng-if="order.paymentStatus==5&&order.orderStatus==5&&order.evalId==null" ng-click="evaluate(order.orderNo)">评价</button>
+		<button ng-cloak class="order_button" ng-if="order.paymentStatus==1&&order.recordState==1" ng-click="pay(order)">立即支付</button>
+	</div>
+	<script type="text/javascript" src="../../js/order/order_detail2.js"></script>
+	<script type="text/javascript" src="../../js/foot.js"></script>
+</body>
+</html>

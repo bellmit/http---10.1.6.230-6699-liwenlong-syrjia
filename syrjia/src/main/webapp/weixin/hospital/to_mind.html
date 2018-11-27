@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="evaBannerApp" ng-controller="evaBannerCon">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=no">
+<link rel="stylesheet" type="text/css" href="../../css/mui.min.css">
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+<script src="../../js/mui.min.js"></script>
+<script type="text/javascript" src="../../js/jquery.min.js"></script>
+<script type="text/javascript" src="../../js/angular.min.js"></script>
+<script src="../../js/angular-sanitize.min.js"></script>
+<script src="../../js/util.js"></script>
+<title>送心意</title>
+</head>
+<body>
+	<ul class="mind_con">
+		<li ng-repeat="evaBan in evaBanners" class="type1" ng-if="evaBan.type==1" price="{{evaBan.price |number:2}}">
+			<div class="mind_select">
+				<span ng-click="checkDiv($event,evaBan.price,evaBan.id,evaBan.type)" id="check_{{evaBan.id}}"><i id="{{evaBan.id}}"
+					price="{{evaBan.price |number:2}}" _type="{{evaBan.type}}"></i> </span> <img
+					ng-src="{{evaBan.imgUrl}}">
+				<div class="mind_name">
+					<h3 ng-bind="evaBan.name"></h3>
+					<p>¥{{evaBan.price |number:2}}</p>
+				</div>
+			</div>
+			<div class="mind_num">
+				<ul class="s_none">
+					<li class="fkleefl" ng-click="changePulse($event,'jian',evaBan.id,evaBan.price)">-</li>
+					<li><input type="number" ng-value="buyNum" class="num" readonly="readonly">
+					</li>
+					<li class="fkleefr" ng-click="changePulse($event,'jia',evaBan.id,evaBan.price)">+</li>
+				</ul>
+			</div>
+		</li>
+		<li ng-repeat="evaBan in evaBanners" class="notype1" ng-if="evaBan.type==2" price="{{evaBan.price |number:2}}">
+			<div class="mind_select">
+				<span  ng-click="checkDiv($event,evaBan.price,evaBan.id,evaBan.type)"><i id="{{evaBan.id}}"
+					price="{{evaBan.price |number:2}}" _type="{{evaBan.type}}"></i> </span> <img
+					ng-src="{{evaBan.imgUrl}}">
+				<div class="mind_name">
+					<h3 ng-bind="evaBan.name"></h3>
+					<p>¥{{evaBan.price |number:2}}</p>
+				</div>
+			</div>
+		</li>
+	</ul>
+	<div class="next_bot">
+		<div class="next_sum" ng-click="checkAll($event)">
+			<p>
+				<span class="cart_check"></span>全选
+			</p>
+			<h3>
+				合计：<span>¥{{totalPrice | number:2}}</span>
+			</h3>
+		</div>
+		<button ng-click="addJqOrder()">确认({{buyCount}})</button>
+	</div>
+	<script type="text/javascript" src="../../js/hospital/to_mind.js"></script>
+	<script type="text/javascript" src="../../js/foot.js"></script>
+</body>
+</html>

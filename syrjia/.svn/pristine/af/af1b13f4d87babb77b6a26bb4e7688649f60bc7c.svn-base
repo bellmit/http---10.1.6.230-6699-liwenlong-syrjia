@@ -1,0 +1,126 @@
+package cn.syrjia.hospital.service;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import cn.syrjia.common.BaseServiceInterface;
+import cn.syrjia.entity.Evaluate;
+import cn.syrjia.entity.Order;
+import cn.syrjia.hospital.entity.OrderSymptom;
+import cn.syrjia.hospital.entity.PhotoMedicalRecord;
+
+public interface DoctorOrderService extends BaseServiceInterface {
+	
+	/**
+	 * 查询用户购买服务确认页面信息
+	 * @param orderType
+	 * @param doctorId
+	 * @param memberId
+	 * @return
+	 */
+	public abstract Map<String,Object> queryConfirmDocServerData(HttpServletRequest request,Integer orderType,String doctorId,String memberId);
+
+	/**
+	 * 根据服务类型、就诊人ID查询是否存在未完成订单
+	 * @param patientId
+	 * @param orderType
+	 * @return
+	 */
+	public abstract Map<String,Object> checkNoFinishOrderByPatientId(String patientId,String doctorId,Integer orderType);
+
+	/**
+	 * 购买医生服务生成订单
+	 * @param request
+	 * @param doctorId
+	 * @param patientId
+	 * @param orderType
+	 * @return
+	 */
+	public abstract Map<String,Object> addServerOrder(HttpServletRequest request,String doctorId, Order order);
+	
+	/**
+	 * 填写症状描述
+	 * @param request
+	 * @param orderSymptom
+	 * @return
+	 */
+	public abstract Map<String,Object> addOrderSymptom(HttpServletRequest request,OrderSymptom orderSymptom);
+	
+	/**
+	 * 根据订单号查询症状描述
+	 * @param request
+	 * @param orderNo
+	 * @return
+	 */
+	public abstract Map<String,Object> queryOrderSymptomByOrderNo(HttpServletRequest request,String orderNo);
+	
+	/**
+	 * 查询同一用户是否有未处理拍方抓药
+	 * @param memberId
+	 * @return
+	 */
+	public abstract Map<String,Object> checkPhotoMedicalCount(HttpServletRequest request,String memberId);
+	
+	/**
+	 * 拍方抓药存入库
+	 * @param request
+	 * @param photoMedical
+	 * @return
+	 */
+	public abstract Map<String,Object> addPhotoMedical(HttpServletRequest request,PhotoMedicalRecord photoMedical,String imgUrls);
+
+	/**
+	 * 评价页面获取信息
+	 * @param orderNo
+	 * @param memberId
+	 * @return
+	 */
+	public abstract Map<String,Object> queryDoctorOrderDetail(HttpServletRequest request,String orderNo,String memberId);
+	
+	/**
+	 * 查询我的锦旗列表
+	 * @param memberId
+	 * @return
+	 */
+	public abstract Map<String, Object> queryMyEvaBanners(HttpServletRequest request,String memberId);
+	
+	/**
+	 * 购买锦旗下单
+	 * @param request
+	 * @param paramarr
+	 * @return
+	 */
+	public abstract Map<String,Object> addJqOrder(HttpServletRequest request,String paramarr,String memberId);
+	
+	/**
+	 * 新增医生服务评价
+	 * @param request
+	 * @param evaluate
+	 * @param labels
+	 * @param jqArr
+	 * @return
+	 */
+	public abstract Map<String,Object> addEvaluate(HttpServletRequest request,Evaluate evaluate,String labels,String jqArr,String myEvaBannersOrders);
+
+	/**
+	 * 当前问诊
+	 * @param memberId
+	 * @param page
+	 * @param row
+	 * @return
+	 */
+	List<Map<String, Object>> queryNowInquiry(String memberId,
+			Integer page, Integer row);
+	
+	/**
+	 * 添加抄方订单
+	 * @param doctorId
+	 * @param patientId
+	 * @return
+	 */
+	public abstract Map<String,Object> addCfOrder(HttpServletRequest request,
+			String doctorId, String patientId);
+	
+}

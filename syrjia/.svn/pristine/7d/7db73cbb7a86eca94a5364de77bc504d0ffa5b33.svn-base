@@ -1,0 +1,791 @@
+$(function() {
+	var articleDivHeight = $(window).height()
+			- ($(".doctor_top").height() + $(".doctor_check").height());
+	$(".articleList").height(articleDivHeight);
+
+});
+var app = angular.module("doctorDetailApp", [ 'ngSanitize',
+		'angular-loading-bar' ]);
+
+app.config([ '$locationProvider', function($locationProvider) {
+	// $locationProvider.html5Mode(true);
+	$locationProvider.html5Mode({
+		enabled : true,
+		requireBase : false
+	});
+} ]);
+
+app.directive('renderFinish', function($timeout) { // renderFinish自定义指令
+	return {
+		restrict : 'A',
+		link : function(scope, element, attr) {
+			if (scope.$last === true) {
+				$timeout(function() {
+					scope.$emit('ngRepeatFinished');
+				});
+			}
+		}
+	};
+});
+
+app.directive('compileHtml', function($sce, $compile) {
+	return {
+		restrict : 'A',
+		replace : true,
+		link : function(scope, ele, attrs) {
+			scope.$watch(function() {
+				return scope.$eval(attrs.ngBind);
+			}, function(html) {
+				ele.html(html);
+				$compile(ele.contents())(scope);
+			});
+		}
+	};
+});
+
+app
+		.filter('splitMoney',
+				function($sce) { // 可以注入依赖
+					return function(text) {
+						if (!text) {
+							return "";
+						}
+						var content = '';
+						if (text.indexOf(";")) {
+							var arr = text.split(";");
+							for ( var i = 0; i < arr.length; i++) {
+								if (arr[i] != null
+										&& arr[i] != ' ' && i < 4) {
+									if (i < 2) {
+										content = '¥' + arr[i] + '/次';
+									} else {
+										content = '¥' + arr[i] + '/'
+												+ arr[i + 4] + '次';
+									}
+									break;
+								} else {
+									content = '¥/次';
+								}
+							}
+						} else {
+							content = '¥/次';
+						}
+						return content;
+					};
+				});
+
+app
+		.filter(
+				'splitDate',
+				function($sce) { // 可以注入依赖
+					return function(text) {
+						if (!text) {
+							return "";
+						}
+						// 当前日期
+						var myDate = new Date;
+						var yy = myDate.getFullYear();
+						var mm = myDate.getMonth() + 1;
+						var dd = myDate.getDate();
+						var nowdate = yy + '-' + (mm < 10 ? '0' + mm : mm)
+								+ '-' + dd;
+						var content = '';
+						var atr = text.split("@");
+						if (nowdate == atr[0]) {
+							content += '<li class="line_today"  ng-click="clickThis($event,\''
+									+ atr[0]
+									+ '\');" ><span>'
+									+ atr[1]
+									+ '</span><p>今天</p></li>';
+						} else {
+							if (atr[2] == null || atr[2] == ' ' || atr[2] == "") {
+								content += '<li ng-click="clickThis($event,\''
+										+ atr[0] + '\');" ><span>' + atr[1]
+										+ '</span><p>休</p></li>';
+							} else {
+								if (atr[2].indexOf("1") > -1) {
+									content += '<li class="line_order"  ng-click="clickThis($event,\''
+											+ atr[0]
+											+ '\');" ><span>'
+											+ atr[1]
+											+ '</span><p>可预约</p></li>';
+								} else {
+									content += '<li class="line_out"  ng-click="clickThis($event,\''
+											+ atr[0]
+											+ '\');" ><span>'
+											+ atr[1]
+											+ '</span><p>出诊</p></li>';
+								}
+							}
+						}
+						return content;
+					};
+				});
+app
+		.filter(
+				'splitIllClass',
+				function($sce) { // 可以注入依赖
+					return function(text) {
+						if (!text) {
+							return "";
+						}
+						var content = '';
+						var illlength;
+						if (text.indexOf(",")) {
+							var arr = text.split(",");
+							illlength = arr.length;
+							for ( var i = 0; i < arr.length; i++) {
+								if (i < 5) {
+									content += '<li><span>' + arr[i]
+											+ '</span></li>';
+								} else {
+									content += '<li ng-hide="illShow==0"><span>'
+											+ arr[i] + '</span></li>';
+								}
+							}
+						} else {
+							illlength = 1;
+							content += '<li><span>' + arr[i] + '</span></li>';
+						}
+						if (illlength > 5) {
+							content += '<li class="doctor_lookmore" ng-show="illShow==0" ng-click="showMoreIll(1);"><span>查看更多</span></li>';
+							content += '<li class="doctor_lookmore" ng-show="illShow==1" ng-click="hideMoreIll(0);"><span>收起</span></li>';
+						}
+						return content;
+					};
+				});
+
+app.filter('splitContent',
+		function($sce) { // 可以注入依赖
+	return function(text) {
+		if(text==null||text==''){
+			return '';
+		}else{
+			index = text.indexOf('>');
+			while (index>0){
+				var startIndex = text.indexOf('<');
+				var endIndex = text.indexOf('>');
+				var tem = text.substring(startIndex,endIndex+1);
+				text = text.replace(tem,'');
+				index = text.indexOf('>');
+		    }
+			text.replace('&nbsp','');
+			
+			var content = text.substr(0,75)+'......';
+			return content;
+		}
+	};
+});
+app.filter('splitImgAndVideo',
+		function($sce) { // 可以注入依赖
+	return function(text) {
+		var content = text.substr(0,50)+'......';
+		
+		return content;
+	};
+});
+app.filter('realName',
+		function($sce) { // 可以注入依赖
+	return function(text) {
+		var content = '';
+		if(text.length==1){
+			return text;
+		}else if(text.length==2){
+			return text.substring(0,1)+"*";
+		}else if(text.length>2){
+			return text.substring(0,1)+"**"+text.substring(text.length-1,text.length);
+		}
+		return content;
+	};
+});
+app.filter('splitLabelNames',
+		function($sce) { // 可以注入依赖
+	return function(text) {
+		if(text!=null&&text!=''){
+			var arr = text.split(",");
+			var re_arr=[];
+			if(arr!=null&&arr.length>0){
+				var content="";
+				for(var i=0,len=arr.length;i<len;i++){
+					re_arr.push(arr[i]);
+					content+='<span>'+re_arr[i]+'</span>';
+				};
+			}else{
+				content='<span>'+arr+'</span>';
+			}
+		}
+		
+		return content;
+	};
+});
+
+var doctorId;var num;
+app
+		.controller(
+				'doctorDetailCon',
+				[
+						'$scope',
+						'$location',
+						'$http',
+						'$sce',
+						'$filter',
+						function($scope, $location, $http, $sce, $filter) {
+							var page = 0;
+							var row = 20;
+							$scope.layerShow = 0;
+							$scope.illShow = 0;
+							if (isEmpty($location.search().tabNum)) {
+								$scope.docTab = 1;
+							} else {
+								$scope.docTab = $location.search().tabNum;
+							}
+
+							// 星期
+							var date = new Date();
+							var week = [ '日', '一', '二', '三', '四', '五', '六' ];
+							var warr = [];
+							var darr = [];
+							showDate = date.getDate();
+							for ( var i = 0; i <= 6; i++) {
+								if (i != 0) {
+									date.setDate(date.getDate() + 1);
+									showDate = date.getDate();
+								}
+								showWeek = '周' + week[date.getDay()];
+								darr.push(showDate);
+								warr.push(showWeek);
+							}
+							;
+							$scope.weekday = darr;
+							$scope.week = warr;
+
+							doctorId = $location.search().id;
+							tab =  $location.search().tab;
+							//openAlertMsg(doctorId);
+							//openAlertMsg(tab);
+							if(isEmpty(doctorId)){
+								doctorId = $location.search().doctorId;
+							}
+							
+							function changeTabNum(num){
+								$scope.docTab = num;
+								if (num == 2) {
+									if (isEmpty(doctorId)) {
+										openAlertMsg("医生信息不存在或设置隐身");
+									} else {
+										mui
+												.init({
+													pullRefresh : {
+														container : '#pullrefresh', // 待刷新区域标识，querySelector能定位的css选择器均可，比如：id、.class等
+														up : {
+															height : 50, // 可选.默认50.触发上拉加载拖动距离
+															auto : true, // 可选,默认false.自动上拉加载一次
+															contentrefresh : "正在加载...", // 可选，正在加载状态时，上拉加载控件上显示的标题内容
+															contentnomore : '<p class="commo_none"><span>没有更多文章</span></p>', // 可选，请求完毕若没有更多数据时显示的提醒内容；
+															callback : function() { // 必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+																var _this = this;
+																page++;
+																$http.post(basePath+ 'doctor/queryDoctorArticleList.action',
+																	{page : page,row : row,doctorId : doctorId},postCfg).then(function(response) {
+																					if (response.data&& response.data.respCode == 1001) {
+																						if (response.data.data.length == 0) {
+																							_this.endPullupToRefresh(true);
+																							$(".commo_none").show();
+																						} else {
+																							if (null != $scope.articles) {
+																								for ( var i = 0; i < response.data.data.length; i++) {
+																									$scope.articles.push(response.data.data[i]);
+																											
+																								}
+																							} else {
+																								$scope.articles = response.data.data;
+																							}
+																							if (response.data.data.length < row) {
+																								_this
+																										.endPullupToRefresh(true);
+																							} else {
+																								_this
+																										.endPullupToRefresh(false);
+																							}
+																						}
+																					} else {
+																						_this
+																								.endPullupToRefresh(true);
+																					}
+																				});
+															}
+														}
+													}
+												});
+									}
+								}
+							}
+							
+							if (isEmpty(doctorId)) {
+								openAlertMsg("医生信息不存在或设置隐身");
+							} else {
+								$http
+										.post(
+												basePath
+														+ 'doctor/queryDoctorById.action',
+												{
+													doctorId : doctorId
+												}, postCfg)
+										.then(
+												function(response) {
+													if (response.data
+															&& response.data.respCode == 1001) {
+														$scope.docUrl = response.data.data.docUrl;
+														$scope.docName = response.data.data.docName;
+														$scope.infrimaryName = response.data.data.infrimaryName;
+														$scope.positionName = response.data.data.positionName;
+														$scope.goodEvaRate = response.data.data.goodEvaRate;
+														$scope.buyNum = response.data.data.buyNum;
+														$scope.evaCnt = response.data.data.evaCnt;
+														if (response.data.data.keepCount > 1000) {
+															$scope.keepCount = (response.data.data.keepCount / 1000)
+																	+ 'k';
+														} else {
+															$scope.keepCount = response.data.data.keepCount;
+														}
+														$scope.isAccpetAsk = response.data.data.isAccpetAsk;
+														$scope.xhCount = response.data.data.xhCount;
+														$scope.jqCount = response.data.data.jqCount;
+														$scope.illClassNames = response.data.data.illClassNames;
+														$scope.isOnlineTwGh = response.data.data.isOnlineTwGh;
+														$scope.isOnlineTwZx = response.data.data.isOnlineTwZx;
+														$scope.isOnlinePhoneZx = response.data.data.isOnlinePhoneZx;
+														$scope.isOnlinePhoneGh = response.data.data.isOnlinePhoneGh;
+														$scope.fisrtTwGhMoney = response.data.data.fisrtTwGhMoney;
+														$scope.twZxMoney = response.data.data.twZxMoney;
+														$scope.twZxCount = response.data.data.twZxCount;
+														$scope.repeatTwGhMoney = response.data.data.repeatTwGhMoney;
+														$scope.fisrtPhoneGhMoney = response.data.data.fisrtPhoneGhMoney;
+														$scope.repeatPhoneGhMoney = response.data.data.repeatPhoneGhMoney;
+														$scope.phoneGhServerTime = response.data.data.phoneGhServerTime;
+														$scope.phoneZxTime = response.data.data.phoneZxTime;
+														$scope.phoneZxMoney = response.data.data.phoneZxMoney;
+														$scope.phoneZxCount = response.data.data.phoneZxCount;
+														$scope.docAbstract = response.data.data.docAbstract;
+														$scope.doctorNotice = response.data.data.doctorNotice;
+														$scope.keepId = response.data.data.keepId;
+														if (!isEmpty($location.search().num)){
+															$scope.docTab=$location.search().num;
+															if ($location.search().num == 2) {
+																if (isEmpty(doctorId)) {
+																	openAlertMsg("医生信息不存在或设置隐身");
+																} else {
+																	mui
+																			.init({
+																				pullRefresh : {
+																					container : '#pullrefresh', // 待刷新区域标识，querySelector能定位的css选择器均可，比如：id、.class等
+																					up : {
+																						height : 50, // 可选.默认50.触发上拉加载拖动距离
+																						auto : true, // 可选,默认false.自动上拉加载一次
+																						contentrefresh : "正在加载...", // 可选，正在加载状态时，上拉加载控件上显示的标题内容
+																						contentnomore : '<p class="commo_none"><span>没有更多文章</span></p>', // 可选，请求完毕若没有更多数据时显示的提醒内容；
+																						callback : function() { // 必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+																							var _this = this;
+																							page++;
+																							$http.post(basePath+ 'doctor/queryDoctorArticleList.action',
+																								{page : page,row : row,doctorId : doctorId},postCfg).then(function(response) {
+																												if (response.data&& response.data.respCode == 1001) {
+																													if (response.data.data.length == 0) {
+																														_this.endPullupToRefresh(true);
+																														$(".commo_none").show();
+																													} else {
+																														if (null != $scope.articles) {
+																															for ( var i = 0; i < response.data.data.length; i++) {
+																																$scope.articles.push(response.data.data[i]);
+																																		
+																															}
+																														} else {
+																															$scope.articles = response.data.data;
+																														}
+																														if (response.data.data.length < row) {
+																															_this
+																																	.endPullupToRefresh(true);
+																														} else {
+																															_this
+																																	.endPullupToRefresh(false);
+																														}
+																													}
+																												} else {
+																													_this
+																															.endPullupToRefresh(true);
+																												}
+																											});
+																						}
+																					}
+																				}
+																			});
+																}
+															}
+														}
+														
+														setTimeout(function(){
+															if($(".doctor_intro").height()<$(".doctor_intro span").height()){
+																$scope.isShowDocAbstract=true;
+															}
+														},100);
+														
+														
+														$http.post(basePath + 'im/queryScan.action',{url:$location.absUrl()},postCfg).then(
+																function(response) {
+																	if(response.data&&response.data.respCode==1001){
+																		wx.config({
+																			debug : false, // 开启调试模式,调用的所有api的返回值会在客户端openAlert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+																			appId : response.data.data.appId, // 必填，公众号的唯一标识
+																			timestamp : response.data.data.timestamp, // 必填，生成签名的时间戳
+																			nonceStr : response.data.data.nonceStr, // 必填，生成签名的随机串
+																			signature : response.data.data.signature,// 必填，签名，见附录1
+																			jsApiList : [ 'onMenuShareTimeline','onMenuShareAppMessage','onMenuShareQQ','onMenuShareWeibo','onMenuShareQZone']
+																		// 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+																		});
+																		
+																		wx.ready (function () {  
+																			 // 微信分享的数据  
+																		    var shareData = {  
+																		        "imgUrl" :null==$scope.docUrl?'https://mobile.syrjia.com/syrjia/img/logo.png':$scope.docUrl,    // 分享显示的缩略图地址  
+																		        "link" :$location.absUrl(),    // 分享地址  
+																		        "desc" :"如有需要可随时线上咨询，关注我随时查看健康常识",   // 分享描述  
+																		        "title" :$scope.docName+"医生主页",   // 分享标题  
+																		        success : function () {    
+																		        }   
+																		        };
+																		       wx.onMenuShareTimeline(shareData); 
+																		       wx.onMenuShareAppMessage (shareData);
+																		       wx.onMenuShareQQ(shareData);
+																		       wx.onMenuShareWeibo(shareData);
+																		       wx.onMenuShareQZone(shareData);
+																		});
+																		
+																	}
+														});
+														
+													} else {
+														openAlertMsg("医生信息不存在或设置隐身");
+													}
+												});
+								
+								$http
+										.post(
+												basePath
+														+ 'doctor/queryZzDataCountByDocId.action',
+												{
+													doctorId : doctorId
+												}, postCfg)
+										.then(
+												function(response) {
+													if (response.data
+															&& response.data.respCode == 1001) {
+														$scope.dates = response.data.data;
+													}
+												});
+
+								$http
+										.post(
+												basePath
+														+ 'doctor/querySevenZzStatus.action',
+												{
+													doctorId :doctorId
+												}, postCfg)
+										.then(
+												function(response) {
+													if (response.data
+															&& response.data.respCode == 1001) {
+														$scope.zzStatus = response.data.data;
+													}
+												});
+
+								$http
+										.post(
+												basePath
+														+ 'doctor/queryDoctorEvaList.action',
+												{
+													page : 1,
+													row : 5,
+													doctorId : doctorId
+												}, postCfg)
+										.then(
+												function(response) {
+													if (response.data
+															&& response.data.respCode == 1001) {
+														$scope.detailEvas = response.data.data;
+													}
+												});
+							}
+							
+							$scope.toNotice=function(){
+								window.location.href = "doctor_notice.html?doctorId="+ doctorId;
+							}
+							
+							$scope.tabChange = function(num) {
+								//$scope.docTab = num;
+								changeTabNum(num);
+								/*if (num == 2) {
+									if (isEmpty(doctorId)) {
+										openAlertMsg("医生信息不存在或设置隐身");
+									} else {
+										mui
+												.init({
+													pullRefresh : {
+														container : '#pullrefresh', // 待刷新区域标识，querySelector能定位的css选择器均可，比如：id、.class等
+														up : {
+															height : 50, // 可选.默认50.触发上拉加载拖动距离
+															auto : true, // 可选,默认false.自动上拉加载一次
+															contentrefresh : "正在加载...", // 可选，正在加载状态时，上拉加载控件上显示的标题内容
+															contentnomore : '<p class="commo_none"><span>没有更多文章</span></p>', // 可选，请求完毕若没有更多数据时显示的提醒内容；
+															callback : function() { // 必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+																var _this = this;
+																page++;
+																$http.post(basePath+ 'doctor/queryDoctorArticleList.action',
+																	{page : page,row : row,doctorId : doctorId},postCfg).then(function(response) {
+																					if (response.data&& response.data.respCode == 1001) {
+																						if (response.data.data.length == 0) {
+																							_this.endPullupToRefresh(true);
+																							$(".commo_none").show();
+																						} else {
+																							if (null != $scope.articles) {
+																								for ( var i = 0; i < response.data.data.length; i++) {
+																									$scope.articles.push(response.data.data[i]);
+																											
+																								}
+																							} else {
+																								$scope.articles = response.data.data;
+																							}
+																							if (response.data.data.length < row) {
+																								_this
+																										.endPullupToRefresh(true);
+																							} else {
+																								_this
+																										.endPullupToRefresh(false);
+																							}
+																						}
+																					} else {
+																						_this
+																								.endPullupToRefresh(true);
+																					}
+																				});
+															}
+														}
+													}
+												});
+									}
+								}*/
+							};
+
+							$scope.showCalenLayer = function(event, num) {
+								event.stopPropagation();
+								if (num == 1) {
+									$(".doctor_layerup").addClass(
+											"symptom_describe");
+								} else {
+									$(".doctor_layerup").removeClass(
+											"symptom_describe");
+								}
+								$scope.layerShow = num;
+							};
+
+							$scope.toLineBelow = function() {
+								if(!isEmpty(doctorId)){
+									window.location.href = "line_below.html?id="
+										+ doctorId;
+								}
+							};
+
+							$scope.showMoreIll = function(num) {
+								$scope.illShow = num;
+							};
+
+							$scope.hideMoreIll = function(num) {
+								$scope.illShow = num;
+							};
+							
+							$scope.toBuyDetail = function(orderType) {
+								if($scope.isAccpetAsk==0){
+									openAlert("医生未开启接单服务");
+									return false;
+								}
+								$http
+								.post(
+										basePath
+												+ 'member/checkMemberIsBindPhone.action')
+								.then(
+										function(response) {
+											if (response.data
+													&& response.data.respCode == 1001) {
+												if(response.data.data.result==0){
+													openAlert("您还未绑定安全手机号，请先绑定",function(){
+														window.location.href = "../myself/affirm_change.html";
+													});
+												}else{
+													$http
+													.post(
+															basePath
+																	+ 'doctor/checkDoctorIsAccpetAsk.action',{"doctorId":doctorId,"orderType":orderType},postCfg)
+													.then(
+															function(response) {
+																if (response.data
+																		&& response.data.respCode == 1001) {
+																	window.location.href = "affirm_serveorder.html?id="
+																		+ doctorId + "&orderType="
+																		+ orderType;
+																}else{
+																	openAlertMsg(response.data.respMsg);
+																}
+															});
+												}
+											}
+										});
+							};
+
+							$scope.clickThis = function(event, arrDate) {
+								event.stopPropagation();
+								window.location.href = "line_below.html?id="
+										+ doctorId + "&date="
+										+ arrDate;
+							};
+
+							$scope.keep = function() {
+								openAlertMsgLoad1("提交中");
+								$http
+										.post(
+												basePath
+														+ 'keep/addKeep.action',
+												{
+													goodsId : $location
+															.search().id,
+													type : 3
+												}, postCfg)
+										.then(
+												function(response) {
+													closeAlertMsgLoad1();
+													if (response.data
+															&& response.data.respCode == 1001) {
+														if (!isNaN(response.data.data.result)) {
+															$scope.keepId = null;
+															$scope.keepCount--;
+														} else {
+															$scope.keepId = response.data.data;
+															$scope.keepCount++;
+															if ($scope.keepCount > 1000) {
+																$scope.keepCount = ($scope.keepCount / 1000)
+																		+ 'k';
+															}
+														}
+													} else {
+														openAlertMsg(response.data.respMsg);
+													}
+												});
+							};
+
+							/**
+							 * 收藏
+							 */
+							$scope.collect = function(event,id, article) {
+								event.stopPropagation();
+								$(event.target).toggleClass("know_collected");
+								if (id) {
+									//openAlertMsgLoad1("请求中");
+									$http.post(basePath+'knowledgeCircle/knowledgeCollect.action',
+											{id : id}, postCfg).then(function(response) {
+														closeAlertMsgLoad1();
+														if (response.data&& response.data.respCode == 1001) {
+															if (response.data.data.result == 2) {
+																//openAlertMsg("取消收藏");
+																article.collectNum--;
+															} else {
+																//openAlertMsg("已收藏");
+																article.collectNum++;
+															}
+														}
+													});
+								}
+							};
+							/**
+							 * 点赞
+							 */
+							$scope.praise = function(event,id, article) {
+								event.stopPropagation();
+								$(event.target).toggleClass("know_praised");
+								if(id){
+									//openAlertMsgLoad1("请求中");
+									$http.post(basePath+'knowledgeCircle/knowledgePraise.action',
+											{id : id}, postCfg).then(function(response) {
+												closeAlertMsgLoad1();
+												if (response.data
+														&& response.data.respCode == 1001) {
+													if (response.data.data.result == 2) {
+														//openAlertMsg("已取消");
+														article.pointNum--;
+													} else {
+														//openAlertMsg("已赞");
+														article.pointNum++;
+													}
+												}
+											});
+								}
+							};
+
+							/**
+							 * 查看详情
+							 */
+							$scope.detail = function(id) {
+								if (id) {
+									window.location.href = "../knowledge/article_detail.html?circle="
+											+ id;
+								}
+							};
+
+							/**
+							 * 查看全部评价
+							 */
+							$scope.seeAllEvas = function(event) {
+								event.stopPropagation();
+								if (!isEmpty(doctorId)) {
+									window.location.href = "clinic_evaluate.html?id="
+											+ doctorId;
+								}
+							};
+							
+							$scope.share=function(){
+								$(".sy_href").show();
+							}
+							
+							$('.sy_href').click(function(){
+								$(".sy_href").hide();
+							});
+
+						} ]);
+
+function openAlertMsgLoad1(content) {
+	closeAlertMsgLoad1();
+	var div = '<div class="mask-black mask"></div><div class="wx_loading" id="wxloading" style=""><div class="wx_loading_inner"><i class="wx_loading_icon"></i>'
+			+ content + '</div></div>';
+	$("body").append(div);
+}
+
+function closeAlertMsgLoad1() {
+	$(".mask").remove();
+	$("#wxloading").remove();
+}
+
+mui('body').on('tap', '#doctor_more', function(event) {
+	if ($("#doctor_more").hasClass("doctor_up")) {
+		$("#doctor_more i").html("查看更多");
+		$("#doctor_more").removeClass("doctor_up");
+		$(".doctor_intro").removeClass("doctor_intro_auto");
+	} else {
+		$("#doctor_more i").html("收起");
+		$("#doctor_more").addClass("doctor_up");
+		$(".doctor_intro").addClass("doctor_intro_auto");
+	}
+});
+
+mui('body').on('tap','span,p,li,h3,div',function(event) {
+	if ((this.getAttribute("ng-click") || this.getAttribute("onclick"))&& !isWindow) {
+		event.stopPropagation();
+		this.click();
+	}
+});

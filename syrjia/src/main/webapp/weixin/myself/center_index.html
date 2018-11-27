@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="centerApp" ng-controller="centerCon">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=no">
+<link rel="stylesheet" type="text/css" href="../../css/mui.min.css">
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+<link rel="stylesheet" type="text/css" href="../../css/owl.carousel.css">
+<link rel="stylesheet" type="text/css" href="../../css/owl.theme.css">
+<script src="../../js/mui.min.js"></script>
+<script type="text/javascript" src="../../js/jquery.min.js"></script>
+<script type="text/javascript" src="../../js/owl.carousel.js"></script>
+<script src="../../js/swiper.min.js"></script>
+<script type="text/javascript" src="../../js/angular.min.js"></script>
+<script src="../../js/angular-sanitize.min.js"></script>
+<script src="../../js/util.js"></script>
+<title>个人中心</title>
+</head>
+<body class="notice_back">
+	<div class="center_people">
+		<div class="center_head">
+			<img ng-src="{{photo}}">
+		</div>
+		<p ng-bind="realname"></p>
+	</div>
+	<div class="center_order">
+		<h3>我的订单</h3>
+		<ul class="center_orderbtn">
+			<li  ng-click="toAllOrder(2)">
+				<div class="center_orderimg">
+					<img ng-src="../../img/center_order1.png"> <span ng-if="dfk>0" ng-bind="dfk"></span>
+				</div>
+				<p>待付款</p>
+			</li>
+			<li ng-click="toAllOrder(3)">
+				<div class="center_orderimg">
+					<img src="../../img/center_order2.png"> <span ng-if="dsh>0" ng-bind="dsh" ></span>
+				</div>
+				<p>待收货</p>
+			</li>
+			<li ng-click="toAllOrder(4)">
+				<div class="center_orderimg">
+					<img src="../../img/center_order3.png"> <span ng-if="dpj>0" ng-bind="dpj" ></span>
+				</div>
+				<p>待评价</p>
+			</li>
+			<li ng-click="toAllOrder(1)">
+				<div class="center_orderimg">
+					<img src="../../img/center_order4.png">
+				</div>
+				<p>全部订单</p>
+			</li>
+		</ul>
+	</div>
+	<div class="center_list">
+		<ul class="center_orderbtn center_listbtn">
+			<li ng-click="nowServer();">
+				<div class="center_orderimg">
+					<img src="../../img/center_listbtn1.png">
+				</div>
+				<p>当前问诊</p>
+			</li>
+			<li ng-click="myCaseList();">
+				<div class="center_orderimg">
+					<img src="../../img/center_listbtn2.png">
+				</div>
+				<p>健康档案</p>
+			</li>
+			<li ng-click="myDoctors();">
+				<div class="center_orderimg">
+					<img src="../../img/center_listbtn3.png">
+				</div>
+				<p>我的医生</p>
+			</li>
+			<li ng-click="toCollect()">
+				<div class="center_orderimg">
+					<img src="../../img/center_listbtn4.png">
+				</div>
+				<p>我的收藏</p>
+			</li>
+		</ul>
+	</div>
+	<ul class="center_else">
+		<li ng-if="isBind==3" ng-click="bindPhone('/syrjia/weixin/myself/affirm_change.html')">
+			<h3>
+				<img src="../../img/phonenum.png"> <span>手机号绑定</span>
+			</h3> <span class="center_right">未绑定，点击绑定</span>
+		</li>
+		<li ng-if="isBind==4" ng-click="bindPhone('/syrjia/weixin/myself/change_phonenum.html')">
+			<h3>
+				<img src="../../img/phonenum.png"> <span>手机号绑定</span>
+			</h3> <span class="center_right">已绑定，点击修改绑定</span>
+		</li>
+		<li ng-click="toPerson()">
+			<h3>
+				<img src="../../img/person.png"> <span>就诊人管理</span>
+			</h3> <span class="center_right">管理就诊人</span>
+		</li>
+		<li ng-click="toAddress()">
+			<h3>
+				<img src="../../img/center_address.png"> <span>收货地址管理</span>
+			</h3> <span class="center_right"></span>
+		</li>
+		<li ng-click="callKf()">
+			<h3>
+				<img src="../../img/kefu.png"> <span>联系客服</span>
+			</h3> <span class="center_right"></span>
+		</li>
+	</ul>
+	<script type="text/javascript"
+		src="../../js/myself/center_index.js?v=2"></script>
+	<script type="text/javascript"
+		src="../../js/foot.js"></script>
+</body>
+</html>

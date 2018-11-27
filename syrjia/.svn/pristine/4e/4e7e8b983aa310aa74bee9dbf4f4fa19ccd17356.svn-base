@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="serverOnlineApp" ng-controller="serverOnlineCon">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=no">
+<link rel="stylesheet" type="text/css" href="../../css/mui.min.css">
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+<script src="../../js/mui.min.js"></script>
+<script type="text/javascript" src="../../js/jquery.min.js"></script>
+<script type="text/javascript" src="../../js/angular.min.js"></script>
+<script src="../../js/angular-sanitize.min.js"></script>
+<script src="../../js/util.js"></script>
+<title>联系客服</title>
+</head>
+<body>
+	<!-- <div class="card_title aid_title">
+		<a></a>
+		<h3>联系客服</h3>
+	</div> -->
+	<div class="service_img">
+		<img src="../../img/service_phone.png">
+	</div>
+	<h3 class="service_h3">客服工作时间周一到周日：早{{serverBeginTime}}-晚{{serverEndTime}}</h3>
+	<div class="service_btn">
+		<a ng-click="toWapChat()">在线客服</a> <a href="tel:{{serverPhone}}">拨打客服电话 : {{serverPhone}}</a> <a href="{{serverEmail}}">客服邮箱：{{serverEmail}}</a>
+	</div>
+	<script type="text/javascript">
+		var app = angular.module("serverOnlineApp", [ 'ngSanitize',
+				'angular-loading-bar' ]);
+
+		app.config([ '$locationProvider', function($locationProvider) {
+			// $locationProvider.html5Mode(true);
+			$locationProvider.html5Mode({
+				enabled : true,
+				requireBase : false
+			});
+		} ]);
+
+		app.directive('renderFinish', function($timeout) { // renderFinish自定义指令
+			return {
+				restrict : 'A',
+				link : function(scope, element, attr) {
+					if (scope.$last === true) {
+						$timeout(function() {
+							scope.$emit('ngRepeatFinished');
+						});
+					}
+				}
+			};
+		});
+		var costomId = null;
+		var costomName = null;
+		var costomUrl = null;
+		var costomType = null;
+		var orderNo = null;
+		var detailNo = null;
+		var orderPrice = null;
+		var orderDate = null;
+		var orderType = null;
+		var serverType = null;
+		var patientName = null;
+		var receiverName = null;
+		var TrackStatus = null;
+		var TradeStatus = null;
+		var orderStatus = null;
+		var supplierId = null;
+		app
+				.controller(
+						'serverOnlineCon',
+						[
+								'$scope',
+								'$location',
+								'$http',
+								'$sce',
+								'$filter',
+								function($scope, $location, $http, $sce,
+										$filter) {
+									costomId = $location.search().costomId;
+									costomName = $location.search().costomName;
+									costomUrl = $location.search().costomUrl;
+									costomType = $location.search().costomType;
+									$http
+											.post(
+													basePath
+															+ 'querySysSet.action')
+											.then(
+													function(response) {
+														if (response.data
+																&& response.data.respCode == 1001) {
+															$scope.serverBeginTime = response.data.data.serverBeginTime;
+															$scope.serverEndTime = response.data.data.serverEndTime;
+															$scope.serverPhone = response.data.data.serverPhone;
+															$scope.serverEmail = response.data.data.serverEmail;
+														} else {
+															openAlert(
+																	response.data.respMsg,
+																	function() {
+																		mui
+																				.back();
+																	});
+														}
+													});
+													
+													$scope.toWapChat=function(){
+														window.location.href="http://kefu.syrjia.com:8001/chat/Weixin/Chat?costomId="+costomId+"&costomName="+costomName+"&costomUrl="+costomUrl+"&costomType="+costomType;
+													};
+								} ]);
+	</script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+	<link rel="stylesheet" type="text/css" href="../../css/style.css">
+	<title>月结账单</title>
+</head>
+<body class="notice_back">
+	<div class="card_title aid_title">
+		<a></a>
+		<h3>月结账单</h3>
+	</div>
+	<div class="bill_con">
+		<a href="bill_detail.html" class="bill_href">发放日期:2017.03.08</a>
+		<div class="bill_bot">
+			<div class="bill_money">
+				<h3>+10000.00</h3>
+				<p>实收</p>
+			</div>
+			<ul>
+				<li>
+					<h3>发放公司</h3>
+					<p>红康云健康科技有限公司</p>
+				</li>
+				<li>
+					<h3>结算日期</h3>
+					<p>2017年2月账单（2.11-3.11）</p>
+				</li>
+				<li>
+					<h3>备&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;注</h3>
+					<p>读取结算类型</p>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<div class="bill_con">
+		<a href="bill_detail.html" class="bill_href">发放日期:2017.03.08</a>
+		<div class="bill_bot">
+			<div class="bill_money">
+				<h3>+10000.00</h3>
+				<p>实收</p>
+			</div>
+			<ul>
+				<li>
+					<h3>发放公司</h3>
+					<p>红康云健康科技有限公司</p>
+				</li>
+				<li>
+					<h3>结算日期</h3>
+					<p>2017年2月账单（2.11-3.11）</p>
+				</li>
+				<li>
+					<h3>备&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;注</h3>
+					<p>读取结算类型</p>
+				</li>
+			</ul>
+		</div>
+	</div>
+</body>
+</html>

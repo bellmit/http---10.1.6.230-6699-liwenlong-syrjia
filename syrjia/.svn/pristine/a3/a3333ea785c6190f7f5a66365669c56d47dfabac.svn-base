@@ -1,0 +1,772 @@
+package cn.syrjia.service.impl;
+
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+
+import net.sf.json.JSONObject;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
+
+import cn.syrjia.common.impl.BaseServiceImpl;
+import cn.syrjia.config.Config;
+import cn.syrjia.config.configCode;
+import cn.syrjia.dao.ImDao;
+import cn.syrjia.entity.AccessToken;
+import cn.syrjia.entity.Piclib;
+import cn.syrjia.hospital.dao.AppDoctorDao;
+import cn.syrjia.hospital.entity.SpecialTestHistory;
+import cn.syrjia.hospital.entity.SpecialTestTitleHistory;
+import cn.syrjia.hospital.entity.SpecialTestTitleOptionsHistory;
+import cn.syrjia.service.ImService;
+import cn.syrjia.service.PushService;
+import cn.syrjia.util.GetSig;
+import cn.syrjia.util.HttpReuqest;
+import cn.syrjia.util.JsonUtil;
+import cn.syrjia.util.StringUtil;
+import cn.syrjia.util.Util;
+
+/** service实现
+ * 
+ * @pdOid 86eb07f9-104c-4114-b5d9-5d8b4f804f6e */
+@Service("imService")
+public class ImServiceImpl extends BaseServiceImpl implements ImService {
+   /** @pdOid b5c5df3b-7979-4835-94ab-fef0ff008142 */
+   @Resource(name="imDao")
+   public ImDao imDao;
+   
+   @Resource(name = "appDoctorDao")
+   AppDoctorDao appDoctorDao;
+   
+   @Resource(name = "pushService")
+   PushService pushService;
+   
+   @Resource(name="config")
+   Config config;
+
+   /**
+	 * 查询患者列表
+	 * @param request
+	 * @param doctorId
+	 * @return
+	 */
+	@Override
+	public Map<String, Object> queryPatient(String doctorId) {
+		Integer s = Util.queryNowTime();
+		//查询患者列表
+		List<Map<String, Object>> list=imDao.queryPatient(doctorId);
+		if(null==list){
+			return Util.resultMap(configCode.code_1015,null);
+		}
+		this.imDao.queryLastMsgListByList(list);
+
+//		for(Map<String,Object> map:list) {
+//			//查询随后的聊天消息
+//			Map<String,Object> last=imDao.queryLastMsg(map.get("doctorId").toString(),map.get("patientId").toString());
+//			if(null!=last) {
+//				//赋值
+//				map.put("lastMsg",Util.getValue(last,"lastMsg",""));
+//				map.put("lastTime",Util.getValue(last,"lastTime",""));
+//				map.put("msgTime",Util.getValue(last,"msgTime",""));
+//			}else {
+//				map.put("msgTime",0);
+//			}
+//
+//		}
+		Collections.sort(list, new Comparator<Map<String, Object>>() {
+            public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+                int map1value = (Integer) o1.get("msgTime");
+                int map2value = (Integer) o2.get("msgTime");
+                return map2value-map1value;
+            }
+        });
+		//查询
+		Map<String,Object> sr=imDao.querySr(doctorId);
+		if(null!=sr) {
+			//查询最后聊天消息
+			Map<String,Object> last=imDao.queryLastMsg(sr.get("doctorId").toString(),sr.get("patientId").toString());
+			if(null!=last) {
+				sr.put("lastMsg",Util.getValue(last,"lastMsg",""));
+				sr.put("lastTime",Util.getValue(last,"lastTime",""));
+			}
+			list.add(0,sr);
+		}
+		System.out.println(Util.queryNowTime()-s);
+		return Util.resultMap(configCode.code_1001,list);
+	}
+
+	/**
+	 * 查询聊天记录
+	 * @param request
+	 * @param date
+	 * @param doctorId
+	 * @param patientId
+	 * @param page
+	 * @param row
+	 * @return
+	 */
+	@Override
+	public Map<String, Object> queryIms(String date,String doctorId, String patientId,Integer page,Integer row) {
+		List<Map<String, Object>> list=imDao.queryIms(date,doctorId,patientId,null,page,row);
+		if(null==list){
+			return Util.resultMap(configCode.code_1015,null);
+		}
+		return Util.resultMap(configCode.code_1001,list);
+	}
+	
+	/**
+	 * 根据日期查询聊天记录
+	 * @param request
+	 * @param doctorId
+	 * @param patientId
+	 * @return
+	 */
+	@Override
+		public Map<String, Object> queryImsDate(String doctorId, String patientId) {
+		//根据日期查询聊天记录
+		List<Map<String, Object>> list=imDao.queryImsDate(doctorId, patientId);
+		if(null==list){
+			return Util.resultMap(configCode.code_1015,null);
+		}
+		return Util.resultMap(configCode.code_1001,list);
+		}
+	
+	/**
+	 * 查询历史聊天记录
+	 * @param request
+	 * @param doctorId
+	 * @param patientId
+	 * @param page
+	 * @param row
+	 * @return
+	 */
+	@Override
+	public Map<String, Object> queryHistoryIms(String doctorId, String patientId,Integer page,Integer row) {
+		//查询历史聊天记录
+		List<Map<String, Object>> list=imDao.queryHistoryOrder(doctorId,patientId,page,row);
+		if(null==list){
+			return Util.resultMap(configCode.code_1015,null);
+		}
+		//遍历list
+		for(Map<String,Object> map:list){
+			//查询聊天记录
+			List<Map<String,Object>> msg=imDao.queryIms(null,doctorId, patientId,map.get("orderNo").toString(),null,null);
+			map.put("msg",msg);
+		}
+		return Util.resultMap(configCode.code_1001,list);
+	}
+
+	/**
+	 * 根据医生id查询医生信息
+	 * @param request
+	 * @param doctorId
+	 * @return
+	 */
+	@Override
+	public Map<String, Object> queryDoctorById(String doctorId) {
+		//查询
+		Map<String, Object> map=imDao.queryDoctorById(doctorId);
+		if(null==map){
+			return Util.resultMap(configCode.code_1129,null);
+		}
+		return Util.resultMap(configCode.code_1001,map);
+	}
+
+	/**
+	 * 根据患者id查询患者信息
+	 * @param request
+	 * @param patientId
+	 * @return
+	 */
+	@Override
+	public Map<String, Object> queryPatientById(String patientId) {
+		//查询
+		Map<String, Object> map=imDao.queryPatientById(patientId);
+		if(null==map){
+			return Util.resultMap(configCode.code_1015,null);
+		}
+		return Util.resultMap(configCode.code_1001,map);
+	}
+
+	/**
+	 * 根据mediaId下载音频信息
+	 * @param request
+	 * @param mediaId
+	 * @return
+	 */
+	@Override
+	public Map<String, Object> queryMp3(HttpServletRequest request,
+			String mediaId) {
+		//获取token
+		String token=imDao.queryToken();
+		String str=HttpReuqest.sendGet(config.getUploadServiceFile()+"uploadMedia/","accessToken="+token+"&pathName=mp3&mediaFileUrl="+mediaId);
+		return Util.resultMap(configCode.code_1001,JsonUtil.jsonToMap(str));
+	}
+   
+	/**
+	 * 根据信息id查询音频播放路径
+	 * @param request
+	 * @param id
+	 * @return
+	 */
+	@Override
+	public Map<String, Object> queryMp3BySqe(String id) {
+		//查询
+		Map<String, Object> map=imDao.queryMp3BySqe(id);
+		if(null==map||map.size()==0){
+			return Util.resultMap(configCode.code_1015,map);
+		}else{
+			return Util.resultMap(configCode.code_1001,map);
+		}
+	}
+
+	/**
+	 * 根据订单号查询症状描述
+	 * @param request
+	 * @param orderNo
+	 * @return
+	 */
+	@Override
+	public Map<String, Object> querySymptom(String orderNo) {
+		Map<String, Object> map=imDao.querySymptom(orderNo);
+		return Util.resultMap(configCode.code_1001,map);
+	}
+
+	/**
+	 * 发送历史问诊单/复诊单
+	 * @param request
+	 * @param test
+	 * @param tongueUrl
+	 * @param surfaceUrl
+	 * @param otherUrl
+	 * @param otherFile
+	 * @param tongueFile
+	 * @param surfaceFile
+	 * @return
+	 */
+	@Override
+	@Transactional
+	public Map<String, Object> addSpecialTestHistory(HttpServletRequest request,String test,String otherUrl,String tongueUrl,String surfaceUrl) {
+		//将json格式的字符串解析成Map对象 
+		Map<String,Object> specialTest=JsonUtil.jsonToMap(test);
+		//创建对象
+		SpecialTestHistory specialTestHistory=new SpecialTestHistory();
+		//赋值
+		specialTestHistory.setCreateTime(Util.queryNowTime());
+		specialTestHistory.setId(specialTest.get("id").toString());
+		specialTestHistory.setMemberId(specialTest.get("memberId").toString());
+		specialTestHistory.setOrderNo(specialTest.get("orderNo").toString());
+		specialTestHistory.setOtherName(specialTest.get("otherName").toString());
+		specialTestHistory.setPatientId(specialTest.get("patientId").toString());
+		specialTestHistory.setIsOther(Integer.parseInt(specialTest.get("isOther").toString()));
+		specialTestHistory.setIsSurface(Integer.parseInt(specialTest.get("isSurface").toString()));
+		specialTestHistory.setIsTongue(Integer.parseInt(specialTest.get("isTongue").toString()));
+		//specialTestHistory.setRemark(specialTest.get("remark").toString());
+		specialTestHistory.setState(1);
+		specialTestHistory.setTestName(specialTest.get("testName").toString());
+		specialTestHistory.setType(Integer.parseInt(specialTest.get("type").toString()));
+		List<Map<String,Object>> testOptions=JsonUtil.parseJSON2List(specialTest.get("testOption"));
+		List<SpecialTestTitleHistory> specialTestTitleHistorys=new ArrayList<SpecialTestTitleHistory>();
+		List<SpecialTestTitleOptionsHistory> specialTestTitleOptionsHistorys=new ArrayList<SpecialTestTitleOptionsHistory>();
+		//遍历testOptions
+		for(Map<String,Object> testOption:testOptions){
+			//创建对象
+			SpecialTestTitleHistory specialTestTitleHistory=new SpecialTestTitleHistory();
+			//赋值
+			specialTestTitleHistory.setCreateTime(Util.queryNowTime());
+			specialTestTitleHistory.setId(Util.getUUID());
+			specialTestTitleHistory.setIsMandatory(Integer.parseInt(testOption.get("isMandatory").toString()));
+			specialTestTitleHistory.setOptionType(Integer.parseInt(testOption.get("optionType").toString()));
+			specialTestTitleHistory.setQid(Integer.parseInt(testOption.get("qid").toString()));
+			specialTestTitleHistory.setSpecialTestId(specialTestHistory.getId());
+			specialTestTitleHistory.setTitleName(testOption.get("titleName").toString());
+			specialTestTitleHistorys.add(specialTestTitleHistory);
+			List<Map<String,Object>> options=JsonUtil.parseJSON2List(testOption.get("options"));
+			//遍历options
+			for(Map<String,Object> option:options){
+				//创建对象
+				SpecialTestTitleOptionsHistory specialTestTitleOptionsHistory=new SpecialTestTitleOptionsHistory();
+				//赋值
+				specialTestTitleOptionsHistory.setId(Util.getUUID());
+				specialTestTitleOptionsHistory.setOptionName(option.get("optionName").toString());
+				specialTestTitleOptionsHistory.setOptionNum(Util.getValue(option,"optionNum",1));
+				specialTestTitleOptionsHistory.setTitleId(specialTestTitleHistory.getId());
+				specialTestTitleOptionsHistory.setChecked(Util.getValue(option,"checked",2));
+				specialTestTitleOptionsHistorys.add(specialTestTitleOptionsHistory);
+			}
+		}
+		List<Piclib> piclibs=new ArrayList<Piclib>();
+		if(null!=otherUrl){
+			for(int i=0;i<otherUrl.split(",").length;i++){
+				//创建对象
+				Piclib piclib=new Piclib();
+				//赋值
+				piclib.setGoodId(specialTestHistory.getId());
+				piclib.setPicId(Util.getUUID());
+				piclib.setPicPathUrl(otherUrl.split(",")[i]);
+				piclib.setStatus("10");
+				piclib.setStatusDate(Util.queryNowTime());
+				piclib.setPicType(5);
+				piclib.setRsrvStr1(i+"");
+				//执行添加
+				piclibs.add(piclib);
+			}
+		}
+		if(null!=tongueUrl){
+			for(int i=0;i<tongueUrl.split(",").length;i++){
+				//创建图片对象
+				Piclib piclib=new Piclib();
+				//赋值
+				piclib.setGoodId(specialTestHistory.getId());
+				piclib.setPicId(Util.getUUID());
+				piclib.setPicPathUrl(tongueUrl.split(",")[i]);
+				piclib.setStatus("10");
+				piclib.setStatusDate(Util.queryNowTime());
+				piclib.setPicType(3);
+				piclib.setRsrvStr1(i+"");
+				//执行添加
+				piclibs.add(piclib);
+			}
+		}
+		if(null!=surfaceUrl){
+			for(int i=0;i<surfaceUrl.split(",").length;i++){
+				//创建对象
+				Piclib piclib=new Piclib();
+				//赋值
+				piclib.setGoodId(specialTestHistory.getId());
+				piclib.setPicId(Util.getUUID());
+				piclib.setPicPathUrl(surfaceUrl.split(",")[i]);
+				piclib.setStatus("10");
+				piclib.setStatusDate(Util.queryNowTime());
+				piclib.setPicType(4);
+				piclib.setRsrvStr1(i+"");
+				//执行添加
+				piclibs.add(piclib);
+			}
+		}
+		//删除
+		imDao.deleteSpecialTestHistory(specialTest.get("id").toString());
+		//通过实体添加
+		Object obj=imDao.addEntity(specialTestHistory);
+		if(StringUtil.isEmpty(obj)){
+			TransactionAspectSupport.currentTransactionStatus()
+			.setRollbackOnly();
+			return Util.resultMap(configCode.code_1066,null);
+		}
+		if(specialTestTitleHistorys.size()>0){
+			//执行添加
+			obj=imDao.addEntity(specialTestTitleHistorys);
+			if(StringUtil.isEmpty(obj)){
+				TransactionAspectSupport.currentTransactionStatus()
+				.setRollbackOnly();
+				return Util.resultMap(configCode.code_1066,null);
+			}
+		}
+		if(specialTestTitleOptionsHistorys.size()>0){
+			//添加
+			obj=imDao.addEntity(specialTestTitleOptionsHistorys);
+			if(StringUtil.isEmpty(obj)){
+				TransactionAspectSupport.currentTransactionStatus()
+				.setRollbackOnly();
+				return Util.resultMap(configCode.code_1066,null);
+			}
+		}
+		if(piclibs.size()>0){
+			obj=imDao.addEntity(piclibs);
+			if(StringUtil.isEmpty(obj)){
+				TransactionAspectSupport.currentTransactionStatus()
+				.setRollbackOnly();
+				return Util.resultMap(configCode.code_1066,null);
+			}
+		}
+		JSONObject json=new JSONObject();
+		//赋值
+		json.put("dataId",specialTestHistory.getId());
+		if(specialTestHistory.getType()==1){
+			json.put("msgType",9);
+		}else{
+			json.put("msgType",11);
+		}
+		//赋值
+		json.put("orderNo",specialTestHistory.getOrderNo());
+		json.put("serverOrderNo",specialTestHistory.getOrderNo());
+		
+		GetSig.sendMsgSync(request,specialTestHistory.getPatientId(),specialTest.get("doctorId").toString(),json);
+		
+		Map<String,Object> patient=pushService.queryOpenIdByPatientId(specialTestHistory.getPatientId());
+		//医生 填写完问问诊单
+		pushService.docfinishwzd(specialTest.get("doctorId").toString(), specialTestHistory.getPatientId(),patient.get("name").toString(),specialTestHistory.getType()==1?"问诊单":"复诊单");
+		
+		return Util.resultMap(configCode.code_1001,specialTestHistory.getId());
+	}
+	/**
+	 * 发送纯文字消息
+	 * @param request
+	 * @param fromAccount
+	 * @param toAccount
+	 * @param data
+	 * @return
+	 */
+	@Override
+	public Map<String, Object> sendMsg(HttpServletRequest request,
+			String fromAccount, String toAccount, String data) {
+		return GetSig.sendMsg(request, fromAccount, toAccount,0,JSONObject.fromString(data));
+	}
+
+	/**
+	 * 获取最后一次订单信息
+	 * @param request
+	 * @param patientId
+	 * @param doctorId
+	 * @param testId
+	 * @return
+	 */
+	@Override
+	public Map<String, Object> queryLastOrderNo(String patientId,String doctorId,String testId) {
+		Map<String, Object> orderNo=imDao.queryLastOrderNo(patientId, doctorId);
+		//为空判断
+		if(null==orderNo||orderNo.size()==0){
+			return Util.resultMap(configCode.code_1034,null);
+		}
+		//通过id查询
+		Map<String, Object> test = appDoctorDao
+				.querySpecialTestById(testId);
+		if(null==test||test.size()==0){
+			return Util.resultMap(configCode.code_1094,null);
+		}
+		//创建对象
+		SpecialTestHistory specialTestHistory=new SpecialTestHistory();
+		//赋值
+		specialTestHistory.setCreateTime(Util.queryNowTime());
+		specialTestHistory.setId(Util.getUUID());
+		specialTestHistory.setMemberId(orderNo.get("memberId").toString());
+		specialTestHistory.setOrderNo(orderNo.get("orderNo").toString());
+		specialTestHistory.setOtherName(Util.getValue(test,"otherName",""));
+		specialTestHistory.setPatientId(patientId);
+		specialTestHistory.setState(2);
+		specialTestHistory.setTestName(test.get("testName").toString());
+		specialTestHistory.setType(Integer.parseInt(test.get("type").toString()));
+		specialTestHistory.setIsOther(Integer.parseInt(test.get("isOther").toString()));
+		specialTestHistory.setIsSurface(Integer.parseInt(test.get("isSurface").toString()));
+		specialTestHistory.setIsTongue(Integer.parseInt(test.get("isTongue").toString()));
+		//创建对象
+		List<SpecialTestTitleHistory> specialTestTitleHistorys=new ArrayList<SpecialTestTitleHistory>();
+		List<SpecialTestTitleOptionsHistory> specialTestTitleOptionsHistorys=new ArrayList<SpecialTestTitleOptionsHistory>();
+		
+		//根据查询问诊/复诊模板id查询模板详情
+		List<Map<String, Object>> list = appDoctorDao
+				.querySpecialTestDetail(testId);
+		if (list != null) {
+			//遍历list
+			for (Map<String, Object> map : list) {
+				//创建对象
+				SpecialTestTitleHistory specialTestTitleHistory=new SpecialTestTitleHistory();
+				//赋值
+				specialTestTitleHistory.setCreateTime(Util.queryNowTime());
+				specialTestTitleHistory.setId(Util.getUUID());
+				specialTestTitleHistory.setIsMandatory(Integer.parseInt(map.get("isMandatory").toString()));
+				specialTestTitleHistory.setOptionType(Integer.parseInt(map.get("optionType").toString()));
+				specialTestTitleHistory.setQid(Integer.parseInt(map.get("qid").toString()));
+				specialTestTitleHistory.setSpecialTestId(specialTestHistory.getId());
+				specialTestTitleHistory.setTitleName(map.get("titleName").toString());
+				specialTestTitleHistorys.add(specialTestTitleHistory);
+				//查询题目
+				List<Map<String, Object>> options = appDoctorDao
+						.querySpecialTestDetailOption(map.get("id")
+								.toString());
+				//遍历options
+				for(Map<String, Object> option : options){
+					SpecialTestTitleOptionsHistory specialTestTitleOptionsHistory=new SpecialTestTitleOptionsHistory();
+					specialTestTitleOptionsHistory.setId(Util.getUUID());
+					specialTestTitleOptionsHistory.setOptionName(option.get("optionName").toString());
+					specialTestTitleOptionsHistory.setOptionNum(Util.getValue(option,"optionNum",1));
+					specialTestTitleOptionsHistory.setTitleId(specialTestTitleHistory.getId());
+					specialTestTitleOptionsHistorys.add(specialTestTitleOptionsHistory);
+				}
+			}
+		}
+		//执行新增
+		Object obj=imDao.addEntity(specialTestHistory);
+		if(StringUtil.isEmpty(obj)){
+			TransactionAspectSupport.currentTransactionStatus()
+			.setRollbackOnly();
+			return Util.resultMap(configCode.code_1066,null);
+		}
+		if(specialTestTitleHistorys.size()>0){
+			//批量增加
+			obj=imDao.addEntity(specialTestTitleHistorys);
+			if(StringUtil.isEmpty(obj)){
+				TransactionAspectSupport.currentTransactionStatus()
+				.setRollbackOnly();
+				return Util.resultMap(configCode.code_1066,null);
+			}
+		}
+		if(specialTestTitleOptionsHistorys.size()>0){
+			//批量添加
+			obj=imDao.addEntity(specialTestTitleOptionsHistorys);
+			if(StringUtil.isEmpty(obj)){
+				TransactionAspectSupport.currentTransactionStatus()
+				.setRollbackOnly();
+				return Util.resultMap(configCode.code_1066,null);
+			}
+		}
+		orderNo.put("testId",specialTestHistory.getId());
+		return Util.resultMap(configCode.code_1001,orderNo);
+	}
+
+	/**
+	 * 查询历史问诊单/复诊单
+	 * @param request
+	 * @param testId
+	 * @return
+	 */
+	@Override
+	public Map<String, Object> querySpecialTestDetailHistory(String testId) {
+		//查询历史详情
+		List<Map<String,Object>> titles=imDao.querySpecialTestDetailHistory(testId);
+		//遍历titles
+		for(Map<String,Object> title:titles){
+			List<Map<String,Object>> options=imDao.querySpecialTestOptionHistory(title.get("id").toString());
+			if(options.size()==0){
+				options.add(new HashMap<String, Object>());
+			}
+			title.put("options",options);
+		}
+		//查询图片
+		List<Map<String,Object>> tongue=imDao.queryPic(testId,3);
+		List<Map<String,Object>> surface=imDao.queryPic(testId,4);
+		List<Map<String,Object>> other=imDao.queryPic(testId,5);
+		Map<String,Object> test=imDao.querySpecialTestHistory(testId);
+		//拼接返回值
+		test.put("testOption",titles);
+		test.put("tongue",tongue);
+		test.put("surface",surface);
+		test.put("other",other);
+		return Util.resultMap(configCode.code_1001,test);
+	}
+
+	/**
+	 * 赠送次数
+	 * @param request
+	 * @param patientId
+	 * @param doctorId
+	 * @param count
+	 * @return
+	 */
+	@Override
+	@Transactional
+	public Map<String, Object> addSyZxCount(String patientId, String doctorId,
+			Integer count) {
+		//通过订单号查询
+		Map<String, Object> orderNo=imDao.queryLastOrderNo(patientId, doctorId);
+		if(null==orderNo||orderNo.size()==0){
+			return Util.resultMap(configCode.code_1034,null);
+		}
+		Integer i=0;
+		if(count>0){
+			//执行更新
+			i=imDao.addZxCount(orderNo.get("orderNo").toString(), count);
+		}else{
+			//执行更新
+			i=imDao.addSyZxCount(orderNo.get("orderNo").toString(), count);
+		}
+		if(i==0){
+			return Util.resultMap(configCode.code_1066,null);
+		}else{
+			if(count>0){
+				//执行更新
+				i=imDao.addZxCount(orderNo.get("orderNo").toString(),doctorId,count);
+				if(i==0){
+					TransactionAspectSupport.currentTransactionStatus()
+					.setRollbackOnly();
+					return Util.resultMap(configCode.code_1066,null);
+				}
+			}else{
+				//更新
+				i=imDao.updateZxCount(orderNo.get("orderNo").toString(), count);
+			}
+			i=imDao.querySyZxCount(orderNo.get("orderNo").toString());
+			return Util.resultMap(configCode.code_1001,i);
+		}
+	}
+
+	/**
+	 * 消息撤回
+	 * @param request
+	 * @param toAccount
+	 * @param fromAccount
+	 * @param msgId
+	 * @return
+	 */
+	@Override
+	public Map<String, Object> withdrawIm(HttpServletRequest request,String toAccount, String fromAccount,String msgId) {
+		//消息撤回
+		Integer i=imDao.withdrawIm(msgId,18);
+		if(i==0){
+			return Util.resultMap(configCode.code_1066,null);
+		}else{
+			/*JSONObject json=new JSONObject();
+			json.put("dataId",msgId);
+			json.put("msgType",18);
+			GetSig.sendMsg(request, fromAccount, toAccount,0,json);*/
+			return Util.resultMap(configCode.code_1001,i);
+		}
+	}
+	
+	/**
+	 * 删除消息
+	 * @param request
+	 * @param msgId
+	 * @param doctorId
+	 * @return
+	 */
+	@Override
+	public Map<String, Object> deleteMsg(String msgId, String doctorId) {
+		Integer i=imDao.deleteMsg(msgId,doctorId);
+		if(i==0){
+			return Util.resultMap(configCode.code_1066,null);
+		}else{
+			return Util.resultMap(configCode.code_1001,i);
+		}
+	}
+
+	/**
+	 * 转发消息
+	 * @param request
+	 * @param msgId
+	 * @param patientId
+	 * @param fromAccount
+	 * @param toAccount
+	 * @return
+	 */
+	@Override
+	public Map<String, Object> forwardingMsg(HttpServletRequest request,String msgId,String patientId,String fromAccount,String toAccount) {
+		//通过id查询消息
+		Map<String, Object> msg=imDao.queryMsgById(toAccount, fromAccount, msgId);
+		//查询消息内容
+		Map<String,Object> msgContent=imDao.queryMsgContent(msgId);
+		Integer msgType=Integer.parseInt(msg.get("msgType").toString());
+		//通过订单号查询
+		Map<String,Object> lastOrder=imDao.queryLastOrderNo(toAccount,fromAccount);
+		Map<String,Object> result=null;
+		switch (msgType) {
+		//推送消息
+		case 1:
+			if(!StringUtil.isEmpty(patientId)&&patientId.equals(toAccount)){
+				result=GetSig.sendMsgTestSync(request, fromAccount, toAccount, msgContent.get("content").toString(),lastOrder.get("orderNo").toString());
+			}else{
+				result=GetSig.sendMsgTest(request, fromAccount, toAccount, msgContent.get("content").toString(),lastOrder.get("orderNo").toString());
+			}
+			break;
+		case 2:
+			result=GetSig.sendMsgImage(request, fromAccount, toAccount, msgContent);
+			break;
+		default:
+			break;
+		}
+		return result;
+	}
+	
+	/**
+	 * 删除患者
+	 * @param request
+	 * @param doctorId
+	 * @param patientId
+	 * @return
+	 */
+	@Override
+	public Map<String, Object> deletePatient(HttpServletRequest request,String deleteId,String beDeleted) {
+		Integer i=imDao.deletePatient(deleteId,beDeleted);
+		if(i==0){
+			return Util.resultMap(configCode.code_1066,null);
+		}else{
+			return Util.resultMap(configCode.code_1001,i);
+		}
+	}
+	
+	/**
+	 * 删除医生
+	 * @param request
+	 * @param doctorId
+	 * @param srId
+	 * @return
+	 */
+	@Override
+	public Map<String, Object> deleteDoctor(HttpServletRequest request,String deleteId,String beDeleted) {
+		Integer i=imDao.deleteDoctor(deleteId,beDeleted);
+		if(i==0){
+			return Util.resultMap(configCode.code_1066,null);
+		}else{
+			return Util.resultMap(configCode.code_1001,i);
+		}
+	}
+
+	/**
+	 * 生成签名 腾讯im登录时用
+	 * @param request
+	 * @param identifier
+	 * @return
+	 */
+	@Override
+	public Map<String, Object> queryImSig(HttpServletRequest request,
+			String identifier) {
+		if(StringUtil.isEmpty(identifier)){
+			return Util.resultMap(configCode.code_1029, null); 
+		}
+		Map<String,Object> returnMap = new HashMap<String, Object>();
+		//通过实体查询
+		Map<String,Object> sigMap = imDao.querySig(identifier);
+		if(sigMap==null){
+			Map<String,Object> sig = GetSig.getSig(request, identifier);
+			if(sig==null){
+				return Util.resultMap(configCode.code_1075, null);
+			}
+			//执行添加
+			imDao.insertSig(identifier, sig.get("sig").toString());
+			returnMap.put("sig", sig.get("sig"));
+			returnMap.put("sdkAppid",config.getSdkAppid());
+			returnMap.put("accountType",config.getAccountType());
+		}else{
+			Integer addTime = StringUtil.isEmpty(sigMap.get("addTime"))?null:Integer.valueOf(sigMap.get("addTime").toString());
+			if(StringUtil.isEmpty(addTime)){
+				Map<String,Object> sig = GetSig.getSig(request, identifier);
+				if(sig==null){
+					return Util.resultMap(configCode.code_1075, sig);
+				}
+				//执行添加
+				imDao.insertSig(identifier, sig.get("sig").toString());
+				returnMap.put("sig", sig.get("sig"));
+				returnMap.put("sdkAppid",config.getSdkAppid());
+				returnMap.put("accountType",config.getAccountType());
+			}else{
+				Integer gqTime = 159*24*60*60;
+				if(Util.queryNowTime()-addTime>gqTime){
+					Map<String,Object> sig = GetSig.getSig(request, identifier);
+					if(sig==null){
+						return Util.resultMap(configCode.code_1075, sig);
+					}
+					//更新im
+					imDao.updateSig(identifier, sig.get("sig").toString());
+					returnMap.put("sig", sig.get("sig"));
+					returnMap.put("sdkAppid",config.getSdkAppid());
+					returnMap.put("accountType",config.getAccountType());
+				}else{
+					returnMap.put("sig", sigMap.get("sig"));
+					returnMap.put("sdkAppid",config.getSdkAppid());
+					returnMap.put("accountType",config.getAccountType());
+				}
+			}
+		}
+		return Util.resultMap(configCode.code_1001, returnMap);
+	}
+	
+}

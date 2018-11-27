@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="classifyApp" ng-controller="classifyCon">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=no">
+<link rel="stylesheet" type="text/css" href="../../css/mui.min.css">
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+<link rel="stylesheet" href="../../css/address.css"/>
+<link rel="stylesheet" type="text/css" href="../../css/owl.carousel.css">
+<link rel="stylesheet" type="text/css" href="../../css/owl.theme.css">
+<script src="../../js/mui.min.js"></script>
+<script type="text/javascript" src="../../js/jquery.min.js"></script>
+<script type="text/javascript"
+	src="http://api.map.baidu.com/api?v=2.0&ak=29BFG3sykPW7HPCKcFvjwyHa"></script>
+<script type="text/javascript" src="../../js/owl.carousel.js"></script>
+<script type="text/javascript" src="../../js/angular.min.js"></script>
+<script src="../../js/angular-cookies.min.js"></script>
+<script src="../../js/angular-sanitize.min.js"></script>
+<script src="../../js/util.js"></script>
+<title ng-bind="Toptitle"></title>
+<style type="text/css">
+.banner_top{
+	border-bottom: 1px solid #d4d0ce;
+}
+</style>
+</head>
+<body>
+	<div class="store_top" ng-class="{0:'banner_top'}[banners.length]">
+		<div class="store_region"><input type="" readonly class="cell-input" value="{{city}}" id="J_Address"></div>
+		<div class="search_import store_search">
+			<input type="text" placeholder="请输入您要搜索的商品" ng-click="searchClick()"  readonly="">
+		</div>
+	</div>
+	<div class="drug_banner" id="owl-carousel" class="owl-carousel">
+		<img ng-repeat = "banner in banners" ng-click="toBanerDetail(banner)" ng-src="{{banner.imageUrl}}" ng-cloak render-finish>
+	</div>
+	<div class="drug_con">
+		<ul class="drug_title">
+			<li render-finish1 ng-click="findType(goodsType.id)" id="{{goodsType.id}}" ng-repeat = "goodsType in goodsTypes" ng-cloak><span ng-bind="goodsType.name"></span></li>
+		</ul>
+		<div class="drug_content">
+			<div class="drug_main" ng-repeat="type in types" ng-cloak>
+				<h3 ng-bind="type.name"></h3>
+				<ul>
+					<li ng-repeat="good in type.goods" render-finish2 ng-cloak>
+						<a ng-click="typeDetail(good.id,good.name)">
+							<img ng-src="{{good.img}}">
+							<span ng-bind="good.name"></span>
+						</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<ng-include src="'../../common/mallFoot.html'" ng-init="footCheck=2"></ng-include>
+
+	<script type="text/javascript" src="../../js/ydui.js?v=1"></script>
+	<script type="text/javascript" src="../../js/goods/drug_classify.js"></script>
+	<script type="text/javascript" src="../../js/foot.js"></script>
+</body>
+</html>

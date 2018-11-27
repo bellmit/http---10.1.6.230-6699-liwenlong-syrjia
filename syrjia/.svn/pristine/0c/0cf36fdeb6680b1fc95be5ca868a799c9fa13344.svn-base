@@ -1,0 +1,41 @@
+package cn.syrjia.hospital.service.impl;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+
+import cn.syrjia.common.impl.BaseServiceImpl;
+import cn.syrjia.config.configCode;
+import cn.syrjia.hospital.dao.HealthProDao;
+import cn.syrjia.hospital.service.HealthProductService;
+import cn.syrjia.util.StringUtil;
+import cn.syrjia.util.Util;
+
+@Service("healthProductService")
+public class HealthProductServiceImpl extends BaseServiceImpl implements
+		HealthProductService {
+	
+	@Resource(name="healthProDao")
+	HealthProDao healthProDao;
+
+	@Override
+	public List<Map<String, Object>> queryHealthProducts(String name,String type,
+			Integer page, Integer row) {
+		return healthProDao.queryHealthProducts(name,type,page,row);
+	}
+
+	@Override
+	public Map<String,Object> applyAddDrug(String doctorId, String content) {
+		if(StringUtil.isEmpty(doctorId)||StringUtil.isEmpty(content)){
+			return Util.resultMap(configCode.code_1029, null);
+		}else{
+			healthProDao.applyAddDrug(doctorId, content);
+			return Util.resultMap(configCode.code_1001, 1);
+		}
+	}
+
+	
+}

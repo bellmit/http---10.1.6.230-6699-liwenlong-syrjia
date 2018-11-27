@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="discomApp" ng-controller="discomCon">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=no">
+<link rel="stylesheet" type="text/css" href="../../css/mui.min.css">
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+<script src="../../js/mui.min.js"></script>
+<script type="text/javascript" src="../../js/jquery.min.js"></script>
+<script src="../../js/swiper.min.js"></script>
+<script type="text/javascript" src="../../js/angular.min.js"></script>
+<script src="../../js/angular-sanitize.min.js"></script>
+<script src="../../js/util.js"></script>
+<title>全部病症</title>
+</head>
+<body>
+	<div class="search_top disease_top">
+		<div class="search_import">
+			<input type="text" placeholder="搜索医生、医院、疾病" ng-click="searchClick();">
+		</div>
+	</div>
+	<div class="more_main" ng-init="_ggin='0'">
+		<ul class="more_title">
+			<li render-finish ng-click="showIndex($index)"
+				ng-class="{0:'more_active'}[$index]" id="{{depart.departId}}"
+				ng-repeat="depart in departs"><!-- <img ng-src="{{depart.iconUrl}}"> -->
+				<p ng-bind="depart.departName"></p>
+			</li>
+		</ul>
+		<div class="more_con">
+			<ul ng-show="$index==_ggin" ng-repeat="depart in departs" ng-if="depart.illClass!=null&&depart.illClass!=''&&depart.illClass.length>0">
+				<div ng-bind="depart.illClass | splitIllClass" compile-html></div>
+			</ul>
+		</div>
+	</div>
+	<script type="text/javascript">
+		$(function() {
+			var leftH = $(window).height() - $(".search_top").height();
+			$(".more_title").height(leftH - 30);
+			$(".more_con").height(leftH - 30);
+
+			$(".more_title").on(
+					"click",
+					"li",
+					function() {
+						var index = $(this).index();
+						$(this).addClass("more_active").siblings("li")
+								.removeClass("more_active");
+					});
+
+		});
+	</script>
+	<script type="text/javascript"
+		src="../../js/hospital/more_discom.js?v=1"></script>
+	<script type="text/javascript" src="../../js/foot.js"></script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="caseHistoryListApp"
+	ng-controller="caseHistoryListCon">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=no">
+<link rel="stylesheet" type="text/css" href="../../css/mui.min.css">
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+<script src="../../js/mui.min.js"></script>
+<script type="text/javascript" src="../../js/jquery.min.js"></script>
+<script type="text/javascript" src="../../js/angular.min.js"></script>
+<script src="../../js/angular-sanitize.min.js"></script>
+<script src="../../js/util.js"></script>
+<title>健康档案</title>
+</head>
+	
+<style>
+.mui-pull-caption.mui-pull-caption-nomore{
+	width: 100%;
+}
+.commo_none span{
+	background-color: #f6f5f3;
+}
+#pullrefresh{
+	background-color: #f6f5f3;
+}
+</style>
+<body ng-cloak>
+	<div class="case_con">
+		<div class="case_title">
+			<ul class="disease_screen">
+				<li><span>类型</span>
+					<div class="doctor_layer">
+						<div class="doctor_condfind">
+							<p class="doctor_checkon" render-finish
+								ng-click="checkSearch($event,-1,'type','qblx')" id="qblx">
+								<i>不限</i>
+							</p>
+							<p ng-repeat="serverType in serverTypes"
+								ng-click="checkSearch($event,0,'type',serverType.id)"
+								id="server_{{serverType.id}}" _name="{{serverType.name}}">
+								<i>{{serverType.name}}</i>
+							</p>
+						</div>
+					</div>
+				</li>
+				<li><span>就诊人</span>
+					<div class="doctor_layer">
+						<div class="doctor_condfind">
+							<p class="doctor_checkon"
+								ng-click="checkSearch($event,-1,'patient','qbjzr')" id="qbjzr">
+								<i>全部</i>
+							</p>
+							<p ng-repeat="patient in patients" render-finish
+								ng-click="checkSearch($event,0,'patient',patient.id)"
+								id="{{patient.id}}" _name="{{patient.name}}">
+								<i>{{patient.name}}</i>
+							</p>
+						</div>
+					</div>
+				</li>
+			</ul>
+		</div>
+
+		<ul class="case_list">
+			<div id="pullrefresh" class="mui-content mui-scroll-wrapper"
+				style="margin-top:2.75rem;">
+				<div class="mui-scroll">
+					<li ng-repeat="record in records"
+						ng-click="recordDetail($event,record.doctorId,record.patientId)">
+						<div class="case_top">
+							<div class="case_left">
+								<i>{{record.times|date:'yyyy.MM.dd'}} </i>
+								<h3>{{record.docName | limitTo:3}}{{record.docName.length>3?'...':''}}</h3>
+								<p ng-bind="record.infirmaryName"></p>
+							</div>
+							<p class="case_post" ng-bind="record.positionName"></p>
+						</div>
+						<div class="case_status">
+							<div class="case_staleft">
+								<i ng-bind="record.patientName"></i> <span
+									ng-bind="record.diagonsticName"></span>
+							</div>
+							<div class="case_rigth">
+								<span ng-bind="record.serverName"></span> <span
+									ng-bind="record.recordStatus"></span>
+							</div>
+						</div></li>
+				</div>
+			</div>
+		</ul>
+	</div>
+	<p class="notAvailable" style="display: none">暂无健康档案</p>
+	<script type="text/javascript">
+		$(function() {
+		
+			$(".doctor_layer").height($(window).height());
+			$(".case_con").height($(window).height());
+			
+				
+			$(".disease_screen li").on(
+					"click",
+					function(event) {
+						event.stopPropagation();
+						$(this).siblings("li").find(".doctor_layer").hide();
+						$(this).find(".doctor_layer").show();
+						$(this).addClass("doctor_checked").siblings("li")
+								.removeClass("doctor_checked");
+						$(this).find(".doctor_layer").addClass("doctor_show");
+						$(this).siblings("li").find(".doctor_layer")
+								.removeClass("doctor_show");
+						$(".case_con").css("overflow", "hidden");
+					});
+				
+				
+	
+
+		});
+	</script>
+	<script type="text/javascript"
+		src="../../js/hospital/casehistory_list.js"></script>
+	<script type="text/javascript" src="../../js/foot.js"></script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="activityApp" ng-controller="activityCon">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=no">
+<link rel="stylesheet" type="text/css" href="../../css/mui.min.css">
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+<link rel="stylesheet" href="../../css/address.css" />
+<link rel="stylesheet" type="text/css" href="../../css/owl.carousel.css">
+<link rel="stylesheet" type="text/css" href="../../css/owl.theme.css">
+<script src="../../js/mui.min.js"></script>
+<script type="text/javascript" src="../../js/jquery.min.js"></script>
+<script type="text/javascript" src="../../js/owl.carousel.js"></script>
+<script type="text/javascript" src="../../js/angular.min.js"></script>
+<script src="../../js/angular-sanitize.min.js"></script>
+<script src="../../js/util.js"></script>
+<title ng-bind="Toptitle"></title>
+</head>
+<body>
+	<div class="activity_introduce">
+		<img ng-src="{{banners}}">
+	</div>
+	<div class="activity_introduce">
+		<p ng-bind-html="remark"></p>
+	</div>
+	<ul class="commo_list result_list">
+		<div class="know_classify_con commo_goods">
+			<h3>
+				<span class="left_icon"></span>
+				<span class="know_classify_title">活动商品</span>
+			</h3>
+		</div>
+		<li ng-repeat="good in goods" ng-click=toGoods(good.id)><img ng-src="{{good.picture}}" ng-cloak>
+			<div class="commo_detail">
+				<h3 ng-bind="good.name"></h3>
+				<div class="store_label commo_label">
+					<span ng-if="good.isProprietary==1">自营</span> <span ng-repeat="label in good.label | arr" ng-bind="label"></span>
+				</div>
+				<p>
+					<span>￥{{good.originalPrice}}</span>
+				</p>
+			</div></li>
+	</ul>
+	<script type="text/javascript" src="../../js/activity/activity.js"></script>
+	<script type="text/javascript" src="../../js/foot.js"></script>
+</body>
+</html>

@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="caseHistoryApp">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=no">
+<link rel="stylesheet" type="text/css" href="../../css/mui.min.css">
+<link rel="stylesheet" type="text/css" href="../../css/style.css">
+<script src="../../js/mui.min.js"></script>
+<script type="text/javascript" src="../../js/jquery.min.js"></script>
+<script type="text/javascript" src="../../js/angular.min.js"></script>
+<script src="../../js/angular-sanitize.min.js"></script>
+<script src="../../js/util.js"></script>
+<title>症状描述</title>
+</head>
+<body class="notice_back">
+	<div class="history_sub" style="display: none;">
+		<div class="inquiry_top">
+			<div class="inquiry_photo">
+				<img src="../../img/doctor.png">
+			</div>
+			<div class="inquiry_doctor">
+				<h3>
+					张医德<span>主任医师</span>
+				</h3>
+				<p>北京上医仁家附属医院</p>
+			</div>
+		</div>
+		<div class="history_con">
+			<div class="history_list">
+				<h3 class="histroy_toph">
+					<p>
+						<span>2017.09.17</span><span>线上咨询</span>
+					</p>
+					<span>已完成</span> <i></i>
+				</h3>
+				<div class="history_main" style="display: none">
+					<div class="inquiry_main">
+						<p class="inquiry_time ng-binding" ng-bind="item.time">星期五
+							13:36</p>
+						<ul class="inquiry_chat">
+							<li>
+								<div class="inquiry_icon">
+									<img src="../../img/doctor.png">
+								</div>
+								<div class="inquiry_chat_con">
+									<span class="inquiry_point"></span>
+									<div class="history_bill">
+										<div class="history_billtitle">
+											<img src="../../img/describe.png">
+											<div class="history_billtext">
+												<h3>
+													问诊单<span>认真如实填写</span>
+												</h3>
+												<p>以便真确为您辩证</p>
+											</div>
+										</div>
+										<span class="history_look">查看</span>
+									</div>
+								</div></li>
+							<li class="inquiry_mine">
+								<div class="inquiry_icon">
+									<img src="../../img/photo.png">
+								</div>
+								<div class="inquiry_chat_con">
+									<span class="inquiry_point"></span>
+									<div class="history_bill">
+										<div class="history_billtitle">
+											<img src="../../img/describe.png">
+											<div class="history_billtext">
+												<h3>
+													问诊单<span>认真如实填写</span>
+												</h3>
+												<p>完成度：3/3</p>
+											</div>
+										</div>
+										<span class="history_look">查看</span>
+									</div>
+								</div></li>
+							<li>
+								<div class="inquiry_icon">
+									<img src="../../img/doctor.png">
+								</div>
+								<div class="inquiry_chat_con inquiry_chatext">
+									<p class="inquiry_accept">你是慢性胃炎，我给你开药</p>
+									<span class="inquiry_point"></span>
+								</div></li>
+							<li>
+								<div class="inquiry_icon">
+									<img src="../../img/doctor.png">
+								</div>
+								<div class="inquiry_chat_con">
+									<span class="inquiry_point"></span>
+									<div class="history_bill">
+										<div class="history_billtitle">
+											<img src="../../img/describe.png">
+											<div class="history_billtext">
+												<h3>
+													调理方案<span>待付费</span>
+												</h3>
+												<p>请按时治疗，并尊师遗嘱</p>
+											</div>
+										</div>
+										<span class="history_look">查看</span>
+									</div>
+								</div></li>
+							<p class="inquiry_time">
+								<span>15:36</span>
+							</p>
+							<li class="inquiry_mine">
+								<div class="inquiry_icon">
+									<img src="../../img/photo.png">
+								</div>
+								<div class="inquiry_chat_con inquiry_chatext">
+									<p class="inquiry_accept">医生我能继续晨跑锻炼吗？</p>
+									<span class="inquiry_point"></span>
+								</div></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="history_list">
+				<h3 class="histroy_toph">
+					<p>
+						<span>2017.09.17</span><span>线上咨询</span>
+					</p>
+					<span>已完成</span> <i></i>
+				</h3>
+				<div class="history_main" style="display: none">
+					<div class="inquiry_main">
+						<p class="inquiry_time ng-binding" ng-bind="item.time">星期五
+							13:36</p>
+						<ul class="inquiry_chat">
+							<li>
+								<div class="inquiry_icon">
+									<img src="../../img/doctor.png">
+								</div>
+								<div class="inquiry_chat_con">
+									<span class="inquiry_point"></span>
+									<div class="history_bill">
+										<div class="history_billtitle">
+											<img src="../../img/describe.png">
+											<div class="history_billtext">
+												<h3>
+													问诊单<span>认真如实填写</span>
+												</h3>
+												<p>以便真确为您辩证</p>
+											</div>
+										</div>
+										<span class="history_look">查看</span>
+									</div>
+								</div></li>
+							<li class="inquiry_mine">
+								<div class="inquiry_icon">
+									<img src="../../img/photo.png">
+								</div>
+								<div class="inquiry_chat_con">
+									<span class="inquiry_point"></span>
+									<div class="history_bill">
+										<div class="history_billtitle">
+											<img src="../../img/describe.png">
+											<div class="history_billtext">
+												<h3>
+													问诊单<span>认真如实填写</span>
+												</h3>
+												<p>完成度：3/3</p>
+											</div>
+										</div>
+										<span class="history_look">查看</span>
+									</div>
+								</div></li>
+							<li>
+								<div class="inquiry_icon">
+									<img src="../../img/doctor.png">
+								</div>
+								<div class="inquiry_chat_con inquiry_chatext">
+									<p class="inquiry_accept">你是慢性胃炎，我给你开药</p>
+									<span class="inquiry_point"></span>
+								</div></li>
+							<li>
+								<div class="inquiry_icon">
+									<img src="../../img/doctor.png">
+								</div>
+								<div class="inquiry_chat_con">
+									<span class="inquiry_point"></span>
+									<div class="history_bill">
+										<div class="history_billtitle">
+											<img src="../../img/describe.png">
+											<div class="history_billtext">
+												<h3>
+													调理方案<span>待付费</span>
+												</h3>
+												<p>请按时治疗，并尊师遗嘱</p>
+											</div>
+										</div>
+										<span class="history_look">查看</span>
+									</div>
+								</div></li>
+							<p class="inquiry_time">
+								<span>15:36</span>
+							</p>
+							<li class="inquiry_mine">
+								<div class="inquiry_icon">
+									<img src="../../img/photo.png">
+								</div>
+								<div class="inquiry_chat_con inquiry_chatext">
+									<p class="inquiry_accept">医生我能继续晨跑锻炼吗？</p>
+									<span class="inquiry_point"></span>
+								</div></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="history_list">
+				<h3 class="histroy_toph">
+					<p>
+						<span>2017.09.17</span><span>线上咨询</span>
+					</p>
+					<span>已完成</span> <i></i>
+				</h3>
+				<div class="history_main" style="display: none">
+					<div class="inquiry_main">
+						<p class="inquiry_time ng-binding" ng-bind="item.time">星期五
+							13:36</p>
+						<ul class="inquiry_chat">
+							<li>
+								<div class="inquiry_icon">
+									<img src="../../img/doctor.png">
+								</div>
+								<div class="inquiry_chat_con">
+									<span class="inquiry_point"></span>
+									<div class="history_bill">
+										<div class="history_billtitle">
+											<img src="../../img/describe.png">
+											<div class="history_billtext">
+												<h3>
+													问诊单<span>认真如实填写</span>
+												</h3>
+												<p>以便真确为您辩证</p>
+											</div>
+										</div>
+										<span class="history_look">查看</span>
+									</div>
+								</div></li>
+							<li class="inquiry_mine">
+								<div class="inquiry_icon">
+									<img src="../../img/photo.png">
+								</div>
+								<div class="inquiry_chat_con">
+									<span class="inquiry_point"></span>
+									<div class="history_bill">
+										<div class="history_billtitle">
+											<img src="../../img/describe.png">
+											<div class="history_billtext">
+												<h3>
+													问诊单<span>认真如实填写</span>
+												</h3>
+												<p>完成度：3/3</p>
+											</div>
+										</div>
+										<span class="history_look">查看</span>
+									</div>
+								</div></li>
+							<li>
+								<div class="inquiry_icon">
+									<img src="../../img/doctor.png">
+								</div>
+								<div class="inquiry_chat_con inquiry_chatext">
+									<p class="inquiry_accept">你是慢性胃炎，我给你开药</p>
+									<span class="inquiry_point"></span>
+								</div></li>
+							<li>
+								<div class="inquiry_icon">
+									<img src="../../img/doctor.png">
+								</div>
+								<div class="inquiry_chat_con">
+									<span class="inquiry_point"></span>
+									<div class="history_bill">
+										<div class="history_billtitle">
+											<img src="../../img/describe.png">
+											<div class="history_billtext">
+												<h3>
+													调理方案<span>待付费</span>
+												</h3>
+												<p>请按时治疗，并尊师遗嘱</p>
+											</div>
+										</div>
+										<span class="history_look">查看</span>
+									</div>
+								</div></li>
+							<p class="inquiry_time">
+								<span>15:36</span>
+							</p>
+							<li class="inquiry_mine">
+								<div class="inquiry_icon">
+									<img src="../../img/photo.png">
+								</div>
+								<div class="inquiry_chat_con inquiry_chatext">
+									<p class="inquiry_accept">医生我能继续晨跑锻炼吗？</p>
+									<span class="inquiry_point"></span>
+								</div></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="history_bot">
+			<a href="">线上咨询 10元/3次</a> <a href="">线上问诊 200元/次</a>
+		</div>
+	</div>
+	<!-- 症状描述 -->
+	<div id="symptom_describe" class="notice_back"
+		ng-controller="symptomCon" ng-cloak>
+		<div class="inquiry_top">
+			<div class="inquiry_photo" ng-click="doctorDetail($event)">
+				<img ng-src="{{docUrl}}">
+			</div>
+			<div class="inquiry_doctor" ng-click="doctorDetail($event)">
+				<h3>
+					{{docName | limitTo:5}}<span>{{positionName}}</span>
+				</h3>
+				<p>{{infirmaryName | limitTo:5}}</p>
+			</div>
+			<div class="inquiry_case"
+				ng-click="casehistoryList('{{orderPatientId}}')">
+				<h3 ng-bind="patientName"></h3>
+				<p>我的健康档案</p>
+			</div>
+		</div>
+		<div class="symptom_con">
+			<div class="symptom_main">
+				<div class="symptom_patient">
+					<h3>就诊人</h3>
+					<p>
+						<span ng-bind="patientName"></span> <span ng-bind="patientSex"></span>
+						<span>{{age}}岁</span> <span ng-bind="patientPhone | subPhone"></span>
+					</p>
+				</div>
+				<div class="symptom_hint">
+					详实的描述可帮助医生更好的了解病情<br>（平台会对您的信息进行保密，请放心填写)
+				</div>
+				<div class="symptom_fill">
+					<h3>
+						症状描述<span>1/3</span>
+					</h3>
+					<!-- <p>请描述您的症状</p> -->
+					<div class="symptom_text">
+						<p class="symptom_num">
+							<span class="textCount" ng-bind="null==symptomDescribe?0:symptomDescribe.length"></span>/200
+						</p>
+						<textarea rows="4" class="TextArea1" maxlength="200"
+							ng-model="symptomDescribe"
+							placeholder="示例：反复发作性头痛10年，加剧3天。服药后，气喘缓解，但是咽喉肿痛"></textarea>
+					</div>
+				</div>
+				<div class="symptom_fill">
+					<h3>
+						其他病史<span>2/3</span>
+					</h3>
+					<!-- <p>添加历史病情描述</p> -->
+					<div class="symptom_text">
+						<p class="symptom_num">
+							<span class="textCount" ng-bind="null==otherDescribe?0:otherDescribe.length"></span>/200
+						</p>
+						<textarea rows="4" class="TextArea1" maxlength="200"
+							ng-model="otherDescribe" placeholder="请描述您其他的病史。"></textarea>
+					</div>
+				</div>
+				<div class="symptom_fill">
+					<h3>
+						测量脉搏<span>3/3</span>
+					</h3>
+					<div class="symptom_pusle">
+						<div class="symptom_count">
+							<p>请选择您的脉搏1分钟跳动次数。</p>
+						</div>
+						<div class="symptom_timer" ng-click="showTimer($event)">
+							<span></span>
+							<p class="symptom_name">计时器</p>
+						</div>
+						<div class="symptom_operation">
+							<ul class="s_none">
+								<li class="fkleefl TextArea1" ng-click="changePulse($event,'jian')"></li>
+								<li><input type="tel" ng-model="pulse" class="num TextArea1" maxlength="3"></li>
+								<li class="fkleefr TextArea1" ng-click="changePulse($event,'jia')"></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="evalua_finish symptom_finish"
+			ng-if="oldsymptomDescribe==null">
+			<button ng-click="addOrderSymptom();">完成</button>
+		</div>
+	</div>
+	<div id="count_down" style="display: none;" class="symptom_describe"
+		ng-controller="symptomCon" ng-cloak>
+		<div class="inquiry_top">
+			<div class="inquiry_photo" ng-click="doctorDetail($event)">
+				<img ng-src="{{docUrl}}">
+			</div>
+			<div class="inquiry_doctor" ng-click="doctorDetail($event)">
+				<h3>
+					{{docName | limitTo:5}}<span>{{positionName}}</span>
+				</h3>
+				<p>{{infirmaryName | limitTo:5}}</p>
+			</div>
+			<div class="inquiry_case"
+				ng-click="casehistoryList('{{orderPatientId}}')">
+				<h3 ng-bind="patientName"></h3>
+				<p>我的健康档案</p>
+			</div>
+		</div>
+		<div class="symptom_main">
+			<div class="symptom_patient">
+				<h3>问诊人</h3>
+				<p>
+					<span ng-bind="patientName"></span> <span ng-bind="patientSex"></span>
+					<span>{{age}}岁</span> <span ng-bind="patientPhone | subPhone"></span>
+				</p>
+			</div>
+			<div class="count_con" style="height: 501px;">
+				<h3 id="pulseTime">
+					00:<span>60</span>
+				</h3>
+				<button>
+					<span ng-click="startDjs($event,'pulseTime')">{{buttonName}}</span>
+				</button>
+				<a class="count_close" ng-click="closeTimer($event)"></a>
+			</div>
+		</div>
+	</div>
+	<!-- 症状描述   end-->
+	<script type="text/javascript"
+		src="../../js/hospital/case_history.js"></script>
+	<script type="text/javascript" src="../../js/foot.js"></script>
+</body>
+</html>
